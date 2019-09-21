@@ -1,5 +1,5 @@
-# ADVL_Message_Service_1
-### Andorville™ Message Service Software.
+# ADVL_Network_1
+### Andorville™ Network Software.
 
 
 
@@ -23,7 +23,7 @@ limitations under the License.
 - - -
 
 
-The Andorville™ Message Service software is used by Andorville™ applications to exchange information. The Message Service shows a list of available applications and projects and a list of projects that are currently connected to the service.
+The Andorville™ Network software (previously called the Message Service) is used by Andorville™ applications to exchange information. The Network shows a list of available applications and projects and a list of projects that are currently connected.
 
 
 
