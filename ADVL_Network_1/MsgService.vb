@@ -37,7 +37,8 @@ Public Class MsgService
     End Property
 
     'Public Function Connect(ByVal appName As String, ByVal connectionName As String, ByVal projectName As String, ByVal projectDescription As String, ByVal settingsLocnType As ADVL_Utilities_Library_1.FileLocation.Types, ByVal settingsLocnPath As String, ByVal appType As clsConnection.AppTypes, ByVal getAllWarnings As Boolean, ByVal getAllMessages As Boolean) As String Implements IMsgService.Connect
-    Public Function Connect(ByVal appNetName As String, ByVal appName As String, ByVal connectionName As String, ByVal projectName As String, ByVal projectDescription As String, ByVal projectType As ADVL_Utilities_Library_1.Project.Types, ByVal projectPath As String, ByVal getAllWarnings As Boolean, ByVal getAllMessages As Boolean) As String Implements IMsgService.Connect
+    'Public Function Connect(ByVal appNetName As String, ByVal appName As String, ByVal connectionName As String, ByVal projectName As String, ByVal projectDescription As String, ByVal projectType As ADVL_Utilities_Library_1.Project.Types, ByVal projectPath As String, ByVal getAllWarnings As Boolean, ByVal getAllMessages As Boolean) As String Implements IMsgService.Connect
+    Public Function Connect(ByVal proNetName As String, ByVal appName As String, ByVal connectionName As String, ByVal projectName As String, ByVal projectDescription As String, ByVal projectType As ADVL_Utilities_Library_1.Project.Types, ByVal projectPath As String, ByVal getAllWarnings As Boolean, ByVal getAllMessages As Boolean) As String Implements IMsgService.Connect
         'The Connect function adds a connection to the connections list.
         'Debug.Print("Connecting ...")
 
@@ -47,13 +48,12 @@ Public Class MsgService
             ''Check if appName is already on the connections list:
             Dim conn As clsConnection
 
-            'Dim NewConnectionName As String = NewConnName(connectionName) 'This checks if connectionName is available and modifies the name if required.
-            Dim NewConnectionName As String = NewConnName(appNetName, connectionName) 'This checks if connectionName is available and modifies the name if required.
+            'Dim NewConnectionName As String = NewConnName(proNetName, connectionName) 'This checks if connectionName is available and modifies the name if required.
 
-            If NewConnectionName <> "" Then 'NewConnectionName is not already on the list
-                'Dim Connection As New clsConnection(appName, NewConnectionName, projectName, projectDescription, settingsLocnType, settingsLocnPath, appType, callback, getAllWarnings, getAllMessages)
-                'Dim Connection As New clsConnection(appName, NewConnectionName, projectName, projectDescription, projectType, projectPath, callback, getAllWarnings, getAllMessages)
-                Dim Connection As New clsConnection(appNetName, appName, NewConnectionName, projectName, projectDescription, projectType, projectPath, callback, getAllWarnings, getAllMessages)
+            'If NewConnectionName <> "" Then 'NewConnectionName is not already on the list
+            If ConnectionAvailable(proNetName, connectionName) Then
+                'Dim Connection As New clsConnection(proNetName, appName, NewConnectionName, projectName, projectDescription, projectType, projectPath, callback, getAllWarnings, getAllMessages)
+                Dim Connection As New clsConnection(proNetName, appName, connectionName, projectName, projectDescription, projectType, projectPath, callback, getAllWarnings, getAllMessages)
                 connections.Add(Connection)
 
                 'AppType code removed 2Feb19 ================================================================================
@@ -66,24 +66,21 @@ Public Class MsgService
                 'AppType code removed 2Feb19 --------------------------------------------------------------------------------
 
                 'Add the new connection information to the data grid:
-                'If NewConnectionName <> "ApplicationNetwork" Then
-                If NewConnectionName <> "MessageService" Then
-                    'If Main.ConnectionNameAvailable(NewConnectionName) Then 'UPDATED 12May18
-                    If Main.ConnectionNameAvailable(appNetName, NewConnectionName) Then 'UPDATED 12May18
+                'If NewConnectionName <> "MessageService" Then
+                If connectionName <> "MessageService" Then
+                    'If Main.ConnectionNameAvailable(proNetName, NewConnectionName) Then
+                    If Main.ConnectionNameAvailable(proNetName, connectionName) Then
 
                         'Dont show it on Main.dgvConnections!
 
                         Main.dgvConnections.Rows.Add()
-                        Dim CurrentRow As Integer = Main.dgvConnections.Rows.Count - 2
+                        Dim CurrentRow As Integer = Main.dgvConnections.Rows.Count - 1 'Last blank connections row removed: 2 changed to 1
 
-                        'UPDATED 2Feb19:
-                        Main.dgvConnections.Rows(CurrentRow).Cells(0).Value = appNetName 'New connection AppNet Name
+                        Main.dgvConnections.Rows(CurrentRow).Cells(0).Value = proNetName 'New connection ProNet Name
 
-                        'Main.dgvConnections.Rows(CurrentRow).Cells(0).Value = appName 'New connection App Name
                         Main.dgvConnections.Rows(CurrentRow).Cells(1).Value = appName 'New connection App Name
-                        'Main.dgvConnections.Rows(CurrentRow).Cells(1).Value = NewConnectionName 'New connection Name - UPDATED 12May18
-                        Main.dgvConnections.Rows(CurrentRow).Cells(2).Value = NewConnectionName 'New connection Name 
-                        'Main.dgvConnections.Rows(CurrentRow).Cells(2).Value = projectName 'New Project Name - UPDATED 12May18
+                        'Main.dgvConnections.Rows(CurrentRow).Cells(2).Value = NewConnectionName 'New connection Name 
+                        Main.dgvConnections.Rows(CurrentRow).Cells(2).Value = connectionName 'New connection Name 
                         Main.dgvConnections.Rows(CurrentRow).Cells(3).Value = projectName 'New Project Name 
 
                         'AppType code removed 2Feb19 ================================================================================
@@ -115,7 +112,8 @@ Public Class MsgService
                         Main.dgvConnections.Rows(CurrentRow).Cells(8).Value = callback.GetHashCode 'New connection Callback hash code
                         Main.dgvConnections.Rows(CurrentRow).Cells(9).Value = Format(Now, "d-MMM-yyyy H:mm:ss") 'New connection start time
                         Main.dgvConnections.Rows(CurrentRow).Cells(10).Value = "0" 'New connection duration
-                        Main.dgvConnections.AutoResizeColumns(DataGridViewAutoSizeColumnMode.AllCells)
+                        Main.dgvConnections.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+                        Main.dgvConnections.AutoResizeColumns()
                     Else
                         'Connection App Name not available.
                     End If
@@ -125,10 +123,15 @@ Public Class MsgService
                 'End If
                 'AppType code removed 2Feb19 --------------------------------------------------------------------------------
 
-                Connect = NewConnectionName
+                'Main.Message.Add("Connection added: [" & proNetName & "]." & NewConnectionName & vbCrLf)
+                Main.Message.Add("Connection added: [" & proNetName & "]." & connectionName & vbCrLf)
+
+                'Connect = NewConnectionName
+                Connect = connectionName
             Else
                 'appName is already on the list.
-                SendMainNodeMessage("WARNING: Connection failed because " & connectionName & " (and modified versions) is already on the connections list." & vbCrLf)
+                'SendMainNodeMessage("WARNING: Connection failed because " & connectionName & " (and modified versions) is already on the connections list." & vbCrLf)
+                SendMainNodeMessage("WARNING: Connection failed because [" & proNetName & "]." & connectionName & " is already on the connections list." & vbCrLf)
                 Return False
             End If
             'End If
@@ -180,7 +183,8 @@ Public Class MsgService
     'End Function
 
     'CODE UPDATED TO INCLUDE AppNetName 2Feb19
-    Private Function NewConnName(ByVal AppNetName As String, ByVal reqConnName As String) As String
+    'Private Function NewConnName(ByVal AppNetName As String, ByVal reqConnName As String) As String
+    Private Function NewConnName(ByVal ProNetName As String, ByVal reqConnName As String) As String
         'Return an available connection name based in the requested name: reqConnName.
 
         'Check if reqConnName is already on the connections list:
@@ -191,7 +195,8 @@ Public Class MsgService
                                     'Else
                                     '    Return item.ConnectionName = reqConnName
                                     'End If
-                                    Return item.ConnectionName = reqConnName And item.AppNetName = AppNetName
+                                    'Return item.ConnectionName = reqConnName And item.AppNetName = AppNetName
+                                    Return item.ConnectionName = reqConnName And item.ProNetName = ProNetName
                                 End Function)
         If IsNothing(conn) Then 'reqConnName is not already on the list
             Return reqConnName 'Return reqConnName as an available connection name.
@@ -207,7 +212,9 @@ Public Class MsgService
                                             'Else
                                             '    Return item.ConnectionName = tryConnName
                                             'End If
-                                            Return item.ConnectionName = reqConnName And item.AppNetName = AppNetName
+                                            'Return item.ConnectionName = reqConnName And item.AppNetName = AppNetName
+                                            'Return item.ConnectionName = reqConnName And item.ProNetName = ProNetName
+                                            Return item.ConnectionName = tryConnName And item.ProNetName = ProNetName
                                         End Function)
                 If IsNothing(conn) Then 'tryConnName is not already on the list
                     'tryConnName is not on the list. It can be used for a new connection.
@@ -220,7 +227,8 @@ Public Class MsgService
         End If
     End Function
 
-    Public Function ConnectionAvailable(ByVal AppNetName As String, ByVal ConnName As String) As Boolean Implements IMsgService.ConnectionAvailable
+    'Public Function ConnectionAvailable(ByVal AppNetName As String, ByVal ConnName As String) As Boolean Implements IMsgService.ConnectionAvailable
+    Public Function ConnectionAvailable(ByVal ProNetName As String, ByVal ConnName As String) As Boolean Implements IMsgService.ConnectionAvailable
         'Return True if a Connection named ConnName is available for use in the Application Network named AppNetName.
 
         Dim conn As clsConnection
@@ -230,7 +238,8 @@ Public Class MsgService
                                     'Else
                                     '    Return item.ConnectionName = reqConnName
                                     'End If
-                                    Return item.ConnectionName = ConnName And item.AppNetName = AppNetName
+                                    'Return item.ConnectionName = ConnName And item.AppNetName = AppNetName
+                                    Return item.ConnectionName = ConnName And item.ProNetName = ProNetName
                                 End Function)
         If IsNothing(conn) Then 'ConnName is available for use in the Application Network named AppNetName.
             Return True
@@ -280,8 +289,12 @@ Public Class MsgService
 
     'Public Sub SendMessage(ByVal appName As String, ByVal message As String) Implements IMsgService.SendMessage
     'Public Sub SendMessage(ByVal connName As String, ByVal message As String) Implements IMsgService.SendMessage
-    Public Sub SendMessage(ByVal appNetName As String, ByVal connName As String, ByVal message As String) Implements IMsgService.SendMessage
+    'Public Sub SendMessage(ByVal appNetName As String, ByVal connName As String, ByVal message As String) Implements IMsgService.SendMessage
+    Public Sub SendMessage(ByVal proNetName As String, ByVal connName As String, ByVal message As String) Implements IMsgService.SendMessage
         'Send the message to the application with the connection name appName.
+
+        'FOR DEBUGGING:
+        'Main.Message.Add("Executing SendMessage(AppNetName = " & appNetName & " , connName = " & connName & " )" & vbCrLf)
 
         'Find the connection for the application corresponding to appName:
         Dim conn As clsConnection
@@ -292,7 +305,8 @@ Public Class MsgService
                                     '    'Return item.AppName = appName
                                     '    Return item.ConnectionName = connName
                                     'End If
-                                    Return item.ConnectionName = connName And item.AppNetName = appNetName
+                                    'Return item.ConnectionName = connName And item.AppNetName = appNetName
+                                    Return item.ConnectionName = connName And item.ProNetName = proNetName
                                 End Function)
         If IsNothing(conn) Then
             'The connection is not on the list!
@@ -315,17 +329,81 @@ Public Class MsgService
                 Else
                     conn.Callback.OnSendMessage("The sender is not on the connection list " & vbCrLf)
                 End If
-                conn.Callback.OnSendMessage(message) 'The following error was returned when a large list of projected coordinate reference system names was sent by the Coordinates app:
+                'conn.Callback.OnSendMessage(message) 'The following error was returned when a large list of projected coordinate reference system names was sent by the Coordinates app:
                 'An exception of type 'System.ServiceModel.ProtocolException' occurred in
                 'mscorlib.dll but was not handled in user code.
                 'Additional onformation: The remote server returned an unexpected response:
-                '(413) Request Entitly Too Large.
+                '(413) Request Entity Too Large.
+
+                'If DirectCast(conn.Callback, IContextChannel).State = CommunicationState.Faulted Then
+                '    Debug.Print("Faulted ...")
+                'End If
+
+                Debug.Print("State: " & DirectCast(conn.Callback, IContextChannel).State.ToString)
+                If IsNothing(DirectCast(conn.Callback, IContextChannel).SessionId) Then
+                    Debug.Print("SessionId is Nothing")
+                Else
+                    Debug.Print("SessionId: " & DirectCast(conn.Callback, IContextChannel).SessionId.ToString)
+                End If
+
+                Debug.Print("LocalAddress: " & DirectCast(conn.Callback, IContextChannel).LocalAddress.ToString)
+
+                If IsNothing(conn.Callback) Then
+                    Debug.Print("IsNothing")
+                End If
+
+                Try
+                    conn.Callback.OnSendMessage(message) 'If the application receiving the message has crashed, a timeout error is raised.
+                Catch ex As Exception
+
+                End Try
 
             Else
                 connections.Remove(conn)
             End If
         End If
     End Sub
+
+    Public Function CheckConnection(ByVal proNetName As String, ByVal connName As String) As String Implements IMsgService.CheckConnection
+        'Check the connection with the specified Project Network Name and Connection Name.
+
+        'METHOD FOR CHECKING THE CONNECTION NOT YET FOUND!!!
+
+        'Find the connection fwith the specified Project Network Name and Connection Name:
+        Dim conn As clsConnection
+        conn = connections.Find(Function(item As clsConnection)
+                                    Return item.ConnectionName = connName And item.ProNetName = proNetName
+                                End Function)
+        If IsNothing(conn) Then
+            Return "None"
+        Else
+            ''NOTE: The following code always returns Opened!!!
+            'If DirectCast(conn.Callback, ICommunicationObject).State = CommunicationState.Opened Then
+            '        Return "Opened"
+            '    ElseIf DirectCast(conn.Callback, ICommunicationObject).State = CommunicationState.Closed Then
+            '        Return "Closed"
+            '    ElseIf DirectCast(conn.Callback, ICommunicationObject).State = CommunicationState.Closing Then
+            '        Return "Closing"
+            '    ElseIf DirectCast(conn.Callback, ICommunicationObject).State = CommunicationState.Created Then
+            '        Return "Created"
+            '    ElseIf DirectCast(conn.Callback, ICommunicationObject).State = CommunicationState.Faulted Then
+            '        Return "Faulted"
+            '    ElseIf DirectCast(conn.Callback, ICommunicationObject).State = CommunicationState.Opening Then
+            '        Return "Opening"
+            '    Else
+            '        Return "Unknown"
+            '    End If
+
+            If DirectCast(conn.Callback, ICommunicationObject).State = CommunicationState.Opened Then
+                'DirectCast(conn.Callback, ICommunicationObject).EndPoint.SendTimeout = New System.TimeSpan(0, 0, 1)
+                'conn.Callback.OnSendMessage("Test")
+                'Return "Opened" 'THIS LINE DOES NOT LOCK THE NETWOR APP.
+                'Return conn.Callback.OnSendMessageCheck()
+            End If
+
+        End If
+
+    End Function
 
     'Public Sub SendAllMessage(ByVal message As String, ByVal SenderName As String) Implements IMsgService.SendAllMessage
     Public Sub SendAllMessage(ByVal message As String, ByVal SenderConnName As String) Implements IMsgService.SendAllMessage
@@ -399,9 +477,12 @@ Public Class MsgService
         For Each item In connections
             Dim connectionInfo As New XElement("Connection")
 
-            'ADDED 2Feb19:
-            Dim appNetName As New XElement("AppNetName", item.AppNetName)
-            connectionInfo.Add(appNetName)
+            ''ADDED 2Feb19:
+            'Dim appNetName As New XElement("AppNetName", item.AppNetName)
+            'connectionInfo.Add(appNetName)
+
+            Dim proNetName As New XElement("ProNetName", item.ProNetName)
+            connectionInfo.Add(proNetName)
 
             Dim name As New XElement("Name", item.ConnectionName)
             connectionInfo.Add(name)
@@ -543,14 +624,16 @@ Public Class MsgService
 
     End Sub
 
-    Public Sub GetMessageServiceAppInfo() Implements IMsgService.GetMessageServiceAppInfo
-        'Get information about the Message Service application.
+    'Public Sub GetMessageServiceAppInfo() Implements IMsgService.GetMessageServiceAppInfo
+    Public Sub GetAdvlNetworkAppInfo() Implements IMsgService.GetAdvlNetworkAppInfo
+        'Get information about the Andorville™ Network application.
         Dim callback As IMsgServiceCallback = OperationContext.Current.GetCallbackChannel(Of IMsgServiceCallback)() 'The application information will be sent back to the requesting conection.
 
         Dim decl As New XDeclaration("1.0", "utf-8", "yes")
         Dim doc As New XDocument(decl, Nothing) 'Create an XDocument to store the instructions.
         Dim xmessage As New XElement("XMsg") 'This indicates the start of the message in the XMessage class
-        Dim applicationInfo As New XElement("MessageServiceAppInfo")
+        'Dim applicationInfo As New XElement("MessageServiceAppInfo")
+        Dim applicationInfo As New XElement("AdvlNetworkAppInfo")
 
         Dim applicationName As New XElement("Name", Main.ApplicationInfo.Name)
         applicationInfo.Add(applicationName)
@@ -598,23 +681,25 @@ Public Class MsgService
         Return True
     End Function
 
-    Public Function AppNetNameInUse(ByVal AppNetName As String) As Boolean
-        'Return True if the specified AppNetName is in use.
+    'NOTE: USE THE FUNCTION AppNetNameUsed.
+    'Public Function AppNetNameInUse(ByVal AppNetName As String) As Boolean
+    '    'Return True if the specified AppNetName is in use.
 
-        Dim conn As clsConnection
-        conn = connections.Find(Function(item As clsConnection)
-                                    Return item.AppNetName = AppNetName
-                                End Function)
-        If IsNothing(conn) Then
-            Return False
-        Else
-            Return True
-        End If
-    End Function
+    '    Dim conn As clsConnection
+    '    conn = connections.Find(Function(item As clsConnection)
+    '                                Return item.AppNetName = AppNetName
+    '                            End Function)
+    '    If IsNothing(conn) Then
+    '        Return False
+    '    Else
+    '        Return True
+    '    End If
+    'End Function
 
     'Public Function Disconnect(ByVal appName As String) As Boolean Implements IMsgService.Disconnect
     'Public Function Disconnect(ByVal connName As String) As Boolean Implements IMsgService.Disconnect 'UPDATED 12May18
-    Public Function Disconnect(ByVal appNetName As String, ByVal connName As String) As Boolean Implements IMsgService.Disconnect 'UPDATED 2Feb19
+    'Public Function Disconnect(ByVal appNetName As String, ByVal connName As String) As Boolean Implements IMsgService.Disconnect 'UPDATED 2Feb19
+    Public Function Disconnect(ByVal proNetName As String, ByVal connName As String) As Boolean Implements IMsgService.Disconnect 'UPDATED 2Feb19
         'The Disconnect function removes a connection from the connections list.
         'Find the connection for the application corresponding to connName: 'Find the connection for the application corresponding to appName: 'UPDATED 12May18
         Dim conn As clsConnection
@@ -624,29 +709,35 @@ Public Class MsgService
                                     'Else
                                     '    Return item.ConnectionName = connName
                                     'End If
-                                    Return item.ConnectionName = connName And item.AppNetName = appNetName
+                                    'Return item.ConnectionName = connName And item.AppNetName = appNetName
+                                    Return item.ConnectionName = connName And item.ProNetName = proNetName
                                 End Function)
         If IsNothing(conn) Then
             'The connection is not on the list!
             'SendWarning("WARNING: Disconnection failed because " & appName & " is not on the connections list." & vbCrLf)
             'SendMainNodeMessage("WARNING: Disconnection failed because " & appName & " is not on the connections list." & vbCrLf)
             'Main.Message.Add("WARNING: Disconnection failed because " & appName & " is not on the connections list." & vbCrLf)
-            Main.Message.AddWarning("WARNING: Disconnection failed because appNetName = " & appNetName & " and connName = " & connName & " is not on the connections list." & vbCrLf)
+            'Main.Message.AddWarning("WARNING: Disconnection failed because appNetName = " & appNetName & " and connName = " & connName & " is not on the connections list." & vbCrLf)
+            Main.Message.AddWarning("WARNING: Disconnection failed because proNetName = " & proNetName & " and connName = " & connName & " is not on the connections list." & vbCrLf)
 
             'Show the connections in the list:
             Dim I As Integer
             Dim NConn As Integer = connections.Count
             Main.Message.Add("Number of connections: " & NConn & vbCrLf)
             For I = 0 To NConn - 1
-                Main.Message.Add(I & "  AppNetName: " & connections(I).AppNetName & "  Connection Name: " & connections(I).ConnectionName & vbCrLf)
+                'Main.Message.Add(I & "  AppNetName: " & connections(I).AppNetName & "  Connection Name: " & connections(I).ConnectionName & vbCrLf)
+                Main.Message.Add(I & "  ProNetName: " & connections(I).ProNetName & "  Connection Name: " & connections(I).ConnectionName & vbCrLf)
             Next
 
-
+            'Run this in case the connection is still listed in dgvConnections:
+            Main.RemoveConnectionWithName(proNetName, connName)
 
             Return False
         Else
             connections.Remove(conn)
-            Main.Message.Add("Connection removed: AppNetName: " & appNetName & "  Connection Name: " & connName & vbCrLf)
+            'Main.Message.Add("Connection removed: AppNetName: " & appNetName & "  Connection Name: " & connName & vbCrLf)
+            'Main.Message.Add("Connection removed: ProNetName: " & proNetName & "  Connection Name: " & connName & vbCrLf)
+            Main.Message.Add("Connection removed: [" & proNetName & "]." & connName & vbCrLf)
 
             'OLD CODE: Used for application version using a separate WCF service. ------------------------------------------
             'Send removed connection information to the Main Node connection:
@@ -663,7 +754,8 @@ Public Class MsgService
             'NEW CODE: Uses self hosted WCF service. --------------------------------------------------------------------------
             'Main.RemoveConnectionWithAppName(appName)
             'Main.RemoveConnectionWithName(connName)
-            Main.RemoveConnectionWithName(appNetName, connName)
+            'Main.RemoveConnectionWithName(appNetName, connName)
+            Main.RemoveConnectionWithName(proNetName, connName)
 
             Return True
         End If
@@ -689,19 +781,54 @@ Public Class MsgService
     '    End If
     'End Function
 
-    Public Function AppNetNameUsed(ByVal AppNetName As String) As Boolean Implements IMsgService.AppNetNameUsed
+    'Public Function AppNetNameUsed(ByVal AppNetName As String) As Boolean Implements IMsgService.AppNetNameUsed
+    '    'Return True if the specified Application Network Name is used in the list of Connections.
+
+    '    Dim conn As clsConnection
+    '    conn = connections.Find(Function(item As clsConnection)
+    '                                Return item.AppNetName = AppNetName
+    '                            End Function)
+    '    If IsNothing(conn) Then 'No connection found using the Application Network Name AppNetName.
+    '        Return False
+    '    Else 'A connection was found using the Application Network Name AppNetName.
+    '        Return True
+    '    End If
+
+    'End Function
+
+    Public Function ProNetNameUsed(ByVal ProNetName As String) As Boolean Implements IMsgService.ProNetNameUsed
         'Return True if the specified Application Network Name is used in the list of Connections.
 
         Dim conn As clsConnection
         conn = connections.Find(Function(item As clsConnection)
-                                    Return item.AppNetName = AppNetName
+                                    Return item.ProNetName = ProNetName
                                 End Function)
-        If IsNothing(conn) Then 'No connection found using the Application Network Name AppNetName.
+        If IsNothing(conn) Then 'No connection found using the Project Network Name ProNetName.
             Return False
-        Else 'A connection was found using the Application Network Name AppNetName.
+        Else 'A connection was found using the Project Network Name ProNetName.
             Return True
         End If
 
     End Function
+
+    Public Sub StartProjectAtPath(ByVal ProjectPath As String, ConnectionName As String) Implements IMsgService.StartProjectAtPath
+        'Start the project at the specified Project Path using the specified Connection Name.
+        Main.StartProject(ProjectPath, ConnectionName)
+    End Sub
+
+    Public Function ProjectOpen(ByVal ProjectPath As String) As Boolean Implements IMsgService.ProjectOpen
+        'Return True if the Project at the specified Path is open.
+
+        Dim conn As clsConnection
+        conn = connections.Find(Function(item As clsConnection)
+                                    Return item.ProjectPath = ProjectPath
+                                End Function)
+        If IsNothing(conn) Then 'No connection found using a Project at the specified Path.
+            Return False
+        Else 'A connection was found using the Project at the specified Path.
+            Return True
+        End If
+    End Function
+
 
 End Class

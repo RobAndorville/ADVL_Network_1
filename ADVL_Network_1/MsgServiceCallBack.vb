@@ -6,6 +6,20 @@ Public Class MsgServiceCallBack
     Public Sub OnSendMessage(message As String) Implements IMsgServiceCallback.OnSendMessage
         'A message has been received.
         'Set the InstrReceived property value to the XMessage. This will also apply the instructions in the XMessage.
-        Main.InstrReceived = message
+        Try
+            Main.InstrReceived = message
+        Catch ex As Exception
+
+        End Try
+
     End Sub
+
+    'Public Function OnSendMessageCheck() As String Implements IMsgServiceCallback.OnSendMessageCheck
+    '    'If IsNothing(Main) Then
+    '    '    Return "Failed"
+    '    'Else
+    '    '    Return "OK"
+    '    'End If
+    '    Return "OK"
+    'End Function
 End Class

@@ -6,14 +6,24 @@
     'GetAllWarnings is a flag that indicates if all warning messages are to be received.
     'GetAllMessages is a flag that indicates if all messages are to be received.
 
-    'ADDED 2Feb19
-    Private _appNetName As String = "" 'The name of the Application Network containing the connection.
-    Friend Property AppNetName As String
+    ''ADDED 2Feb19
+    'Private _appNetName As String = "" 'The name of the Application Network containing the connection.
+    'Friend Property AppNetName As String
+    '    Get
+    '        Return _appNetName
+    '    End Get
+    '    Set(value As String)
+    '        _appNetName = value
+    '    End Set
+    'End Property
+
+    Private _proNetName As String = "" 'The name of the Project Network containing the connection.
+    Friend Property ProNetName As String
         Get
-            Return _appNetName
+            Return _proNetName
         End Get
         Set(value As String)
-            _appNetName = value
+            _proNetName = value
         End Set
     End Property
 
@@ -128,7 +138,12 @@
             Return _callback
         End Get
         Set(value As IMsgServiceCallback)
-            _callback = value
+            Try
+                _callback = value
+            Catch ex As Exception
+
+            End Try
+
         End Set
     End Property
 
@@ -157,8 +172,10 @@
     'Friend Sub New(ByVal newAppName As String, ByVal newConnName As String, ByVal newProjectName As String, ByVal newProjectPath As String, ByRef newAppType As AppTypes, ByRef newCallback As IMsgServiceCallback, ByVal newGetAllWarnings As Boolean, ByVal newGetAllMessages As Boolean)
     'Friend Sub New(ByVal newAppName As String, ByVal newConnName As String, ByVal newProjectName As String, ByVal newProjectDescription As String, ByVal newSettingsLocnType As ADVL_Utilities_Library_1.FileLocation.Types, ByVal newSettingsLocnPath As String, ByRef newAppType As AppTypes, ByRef newCallback As IMsgServiceCallback, ByVal newGetAllWarnings As Boolean, ByVal newGetAllMessages As Boolean)
     'Friend Sub New(ByVal newAppName As String, ByVal newConnName As String, ByVal newProjectName As String, ByVal newProjectDescription As String, ByVal newProjectType As ADVL_Utilities_Library_1.Project.Types, ByVal newProjectPath As String, ByRef newCallback As IMsgServiceCallback, ByVal newGetAllWarnings As Boolean, ByVal newGetAllMessages As Boolean)
-    Friend Sub New(ByVal newAppNetName As String, ByVal newAppName As String, ByVal newConnName As String, ByVal newProjectName As String, ByVal newProjectDescription As String, ByVal newProjectType As ADVL_Utilities_Library_1.Project.Types, ByVal newProjectPath As String, ByRef newCallback As IMsgServiceCallback, ByVal newGetAllWarnings As Boolean, ByVal newGetAllMessages As Boolean) 'UPDATED 3Feb19
-        AppNetName = newAppNetName 'ADDED 3Feb19
+    'Friend Sub New(ByVal newAppNetName As String, ByVal newAppName As String, ByVal newConnName As String, ByVal newProjectName As String, ByVal newProjectDescription As String, ByVal newProjectType As ADVL_Utilities_Library_1.Project.Types, ByVal newProjectPath As String, ByRef newCallback As IMsgServiceCallback, ByVal newGetAllWarnings As Boolean, ByVal newGetAllMessages As Boolean) 'UPDATED 3Feb19
+    Friend Sub New(ByVal newProNetName As String, ByVal newAppName As String, ByVal newConnName As String, ByVal newProjectName As String, ByVal newProjectDescription As String, ByVal newProjectType As ADVL_Utilities_Library_1.Project.Types, ByVal newProjectPath As String, ByRef newCallback As IMsgServiceCallback, ByVal newGetAllWarnings As Boolean, ByVal newGetAllMessages As Boolean)
+        'AppNetName = newAppNetName 'ADDED 3Feb19
+        ProNetName = newProNetName
         AppName = newAppName
         ConnectionName = newConnName
         ProjectName = newProjectName

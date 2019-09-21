@@ -57,20 +57,29 @@ Partial Class Main
         Dim TextSettings30 As ADVL_Utilities_Library_1.TextSettings = New ADVL_Utilities_Library_1.TextSettings()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Main))
         Me.btnExit = New System.Windows.Forms.Button()
-        Me.btnAndorville = New System.Windows.Forms.Button()
         Me.btnMessages = New System.Windows.Forms.Button()
         Me.btnAppInfo = New System.Windows.Forms.Button()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPage3 = New System.Windows.Forms.TabPage()
         Me.WebBrowser1 = New System.Windows.Forms.WebBrowser()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
-        Me.btnSendMessage = New System.Windows.Forms.Button()
+        Me.btnRemoveWaiting = New System.Windows.Forms.Button()
+        Me.ContextMenuStrip2 = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.ToolStripMenuItem1_EditWorkflowTabPage = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItem1_ShowStartPageInWorkflowTab = New System.Windows.Forms.ToolStripMenuItem()
+        Me.btnCheckConnection = New System.Windows.Forms.Button()
+        Me.chkShowApp = New System.Windows.Forms.CheckBox()
+        Me.chkShowMessages = New System.Windows.Forms.CheckBox()
+        Me.Label5 = New System.Windows.Forms.Label()
+        Me.btnAlignMessageWindow = New System.Windows.Forms.Button()
         Me.dgvConnections = New System.Windows.Forms.DataGridView()
         Me.TabPage4 = New System.Windows.Forms.TabPage()
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
         Me.trvAppTree = New System.Windows.Forms.TreeView()
         Me.ContextMenuStrip1 = New System.Windows.Forms.ContextMenuStrip(Me.components)
         Me.ToolStripMenuItem1_OpenProject = New System.Windows.Forms.ToolStripMenuItem()
+        Me.btnShowProjListInfo = New System.Windows.Forms.Button()
+        Me.btnShowAppListInfo = New System.Windows.Forms.Button()
         Me.btnAddDefaultProject = New System.Windows.Forms.Button()
         Me.btnMoveDown = New System.Windows.Forms.Button()
         Me.btnMoveUp = New System.Windows.Forms.Button()
@@ -141,6 +150,8 @@ Partial Class Main
         Me.Label37 = New System.Windows.Forms.Label()
         Me.XmlHtmDisplay2 = New ADVL_Utilities_Library_1.XmlHtmDisplay(Me.components)
         Me.TabPage2 = New System.Windows.Forms.TabPage()
+        Me.txtVersion = New System.Windows.Forms.TextBox()
+        Me.Label35 = New System.Windows.Forms.Label()
         Me.btnOpenProject2 = New System.Windows.Forms.Button()
         Me.Label28 = New System.Windows.Forms.Label()
         Me.txtProjectPath2 = New System.Windows.Forms.TextBox()
@@ -181,9 +192,13 @@ Partial Class Main
         Me.ProjectIconImageList = New System.Windows.Forms.ImageList(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.btnAndorville = New System.Windows.Forms.Button()
+        Me.Timer4 = New System.Windows.Forms.Timer(Me.components)
+        Me.btnUpdateAppTreeIcon = New System.Windows.Forms.Button()
         Me.TabControl1.SuspendLayout()
         Me.TabPage3.SuspendLayout()
         Me.TabPage1.SuspendLayout()
+        Me.ContextMenuStrip2.SuspendLayout()
         CType(Me.dgvConnections, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TabPage4.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -213,17 +228,6 @@ Partial Class Main
         Me.btnExit.TabIndex = 8
         Me.btnExit.Text = "Exit"
         Me.btnExit.UseVisualStyleBackColor = True
-        '
-        'btnAndorville
-        '
-        Me.btnAndorville.BackgroundImage = Global.ADVL_Message_Service_1.My.Resources.Resources.Andorville_16May16_TM_Crop_Grey
-        Me.btnAndorville.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.btnAndorville.Font = New System.Drawing.Font("Harlow Solid Italic", 14.25!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.btnAndorville.Location = New System.Drawing.Point(5, 5)
-        Me.btnAndorville.Name = "btnAndorville"
-        Me.btnAndorville.Size = New System.Drawing.Size(118, 29)
-        Me.btnAndorville.TabIndex = 50
-        Me.btnAndorville.UseVisualStyleBackColor = True
         '
         'btnMessages
         '
@@ -287,7 +291,12 @@ Partial Class Main
         '
         'TabPage1
         '
-        Me.TabPage1.Controls.Add(Me.btnSendMessage)
+        Me.TabPage1.Controls.Add(Me.btnRemoveWaiting)
+        Me.TabPage1.Controls.Add(Me.btnCheckConnection)
+        Me.TabPage1.Controls.Add(Me.chkShowApp)
+        Me.TabPage1.Controls.Add(Me.chkShowMessages)
+        Me.TabPage1.Controls.Add(Me.Label5)
+        Me.TabPage1.Controls.Add(Me.btnAlignMessageWindow)
         Me.TabPage1.Controls.Add(Me.dgvConnections)
         Me.TabPage1.Location = New System.Drawing.Point(4, 22)
         Me.TabPage1.Name = "TabPage1"
@@ -297,14 +306,83 @@ Partial Class Main
         Me.TabPage1.Text = "Connections"
         Me.TabPage1.UseVisualStyleBackColor = True
         '
-        'btnSendMessage
+        'btnRemoveWaiting
         '
-        Me.btnSendMessage.Location = New System.Drawing.Point(6, 6)
-        Me.btnSendMessage.Name = "btnSendMessage"
-        Me.btnSendMessage.Size = New System.Drawing.Size(101, 22)
-        Me.btnSendMessage.TabIndex = 52
-        Me.btnSendMessage.Text = "Send Message"
-        Me.btnSendMessage.UseVisualStyleBackColor = True
+        Me.btnRemoveWaiting.ContextMenuStrip = Me.ContextMenuStrip2
+        Me.btnRemoveWaiting.Location = New System.Drawing.Point(585, 6)
+        Me.btnRemoveWaiting.Name = "btnRemoveWaiting"
+        Me.btnRemoveWaiting.Size = New System.Drawing.Size(164, 22)
+        Me.btnRemoveWaiting.TabIndex = 278
+        Me.btnRemoveWaiting.Text = "Remove Waiting Connections"
+        Me.btnRemoveWaiting.UseVisualStyleBackColor = True
+        '
+        'ContextMenuStrip2
+        '
+        Me.ContextMenuStrip2.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripMenuItem1_EditWorkflowTabPage, Me.ToolStripMenuItem1_ShowStartPageInWorkflowTab})
+        Me.ContextMenuStrip2.Name = "ContextMenuStrip2"
+        Me.ContextMenuStrip2.Size = New System.Drawing.Size(248, 48)
+        '
+        'ToolStripMenuItem1_EditWorkflowTabPage
+        '
+        Me.ToolStripMenuItem1_EditWorkflowTabPage.Name = "ToolStripMenuItem1_EditWorkflowTabPage"
+        Me.ToolStripMenuItem1_EditWorkflowTabPage.Size = New System.Drawing.Size(247, 22)
+        Me.ToolStripMenuItem1_EditWorkflowTabPage.Text = "Edit Workflow Tab Page"
+        '
+        'ToolStripMenuItem1_ShowStartPageInWorkflowTab
+        '
+        Me.ToolStripMenuItem1_ShowStartPageInWorkflowTab.Name = "ToolStripMenuItem1_ShowStartPageInWorkflowTab"
+        Me.ToolStripMenuItem1_ShowStartPageInWorkflowTab.Size = New System.Drawing.Size(247, 22)
+        Me.ToolStripMenuItem1_ShowStartPageInWorkflowTab.Text = "Show Start Page in Workflow Tab"
+        '
+        'btnCheckConnection
+        '
+        Me.btnCheckConnection.ContextMenuStrip = Me.ContextMenuStrip2
+        Me.btnCheckConnection.Location = New System.Drawing.Point(469, 6)
+        Me.btnCheckConnection.Name = "btnCheckConnection"
+        Me.btnCheckConnection.Size = New System.Drawing.Size(110, 22)
+        Me.btnCheckConnection.TabIndex = 277
+        Me.btnCheckConnection.Text = "Check Connection"
+        Me.btnCheckConnection.UseVisualStyleBackColor = True
+        '
+        'chkShowApp
+        '
+        Me.chkShowApp.AutoSize = True
+        Me.chkShowApp.Location = New System.Drawing.Point(355, 10)
+        Me.chkShowApp.Name = "chkShowApp"
+        Me.chkShowApp.Size = New System.Drawing.Size(108, 17)
+        Me.chkShowApp.TabIndex = 57
+        Me.chkShowApp.Text = "Show Application"
+        Me.ToolTip1.SetToolTip(Me.chkShowApp, "Align message window with the Message Service messages")
+        Me.chkShowApp.UseVisualStyleBackColor = True
+        '
+        'chkShowMessages
+        '
+        Me.chkShowMessages.AutoSize = True
+        Me.chkShowMessages.Location = New System.Drawing.Point(245, 10)
+        Me.chkShowMessages.Name = "chkShowMessages"
+        Me.chkShowMessages.Size = New System.Drawing.Size(104, 17)
+        Me.chkShowMessages.TabIndex = 56
+        Me.chkShowMessages.Text = "Show Messages"
+        Me.ToolTip1.SetToolTip(Me.chkShowMessages, "Align message window with the Message Service messages")
+        Me.chkShowMessages.UseVisualStyleBackColor = True
+        '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Location = New System.Drawing.Point(170, 11)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(69, 13)
+        Me.Label5.TabIndex = 55
+        Me.Label5.Text = "On selection:"
+        '
+        'btnAlignMessageWindow
+        '
+        Me.btnAlignMessageWindow.Location = New System.Drawing.Point(6, 6)
+        Me.btnAlignMessageWindow.Name = "btnAlignMessageWindow"
+        Me.btnAlignMessageWindow.Size = New System.Drawing.Size(138, 22)
+        Me.btnAlignMessageWindow.TabIndex = 52
+        Me.btnAlignMessageWindow.Text = "Align Message Window"
+        Me.btnAlignMessageWindow.UseVisualStyleBackColor = True
         '
         'dgvConnections
         '
@@ -342,6 +420,9 @@ Partial Class Main
         '
         'SplitContainer1.Panel2
         '
+        Me.SplitContainer1.Panel2.Controls.Add(Me.btnUpdateAppTreeIcon)
+        Me.SplitContainer1.Panel2.Controls.Add(Me.btnShowProjListInfo)
+        Me.SplitContainer1.Panel2.Controls.Add(Me.btnShowAppListInfo)
         Me.SplitContainer1.Panel2.Controls.Add(Me.btnAddDefaultProject)
         Me.SplitContainer1.Panel2.Controls.Add(Me.btnMoveDown)
         Me.SplitContainer1.Panel2.Controls.Add(Me.btnMoveUp)
@@ -390,6 +471,24 @@ Partial Class Main
         Me.ToolStripMenuItem1_OpenProject.Name = "ToolStripMenuItem1_OpenProject"
         Me.ToolStripMenuItem1_OpenProject.Size = New System.Drawing.Size(143, 22)
         Me.ToolStripMenuItem1_OpenProject.Text = "Open Project"
+        '
+        'btnShowProjListInfo
+        '
+        Me.btnShowProjListInfo.Location = New System.Drawing.Point(233, 522)
+        Me.btnShowProjListInfo.Name = "btnShowProjListInfo"
+        Me.btnShowProjListInfo.Size = New System.Drawing.Size(107, 22)
+        Me.btnShowProjListInfo.TabIndex = 292
+        Me.btnShowProjListInfo.Text = "Show Proj List Info"
+        Me.btnShowProjListInfo.UseVisualStyleBackColor = True
+        '
+        'btnShowAppListInfo
+        '
+        Me.btnShowAppListInfo.Location = New System.Drawing.Point(120, 522)
+        Me.btnShowAppListInfo.Name = "btnShowAppListInfo"
+        Me.btnShowAppListInfo.Size = New System.Drawing.Size(107, 22)
+        Me.btnShowAppListInfo.TabIndex = 291
+        Me.btnShowAppListInfo.Text = "Show App List Info"
+        Me.btnShowAppListInfo.UseVisualStyleBackColor = True
         '
         'btnAddDefaultProject
         '
@@ -1355,6 +1454,8 @@ Partial Class Main
         '
         'TabPage2
         '
+        Me.TabPage2.Controls.Add(Me.txtVersion)
+        Me.TabPage2.Controls.Add(Me.Label35)
         Me.TabPage2.Controls.Add(Me.btnOpenProject2)
         Me.TabPage2.Controls.Add(Me.Label28)
         Me.TabPage2.Controls.Add(Me.txtProjectPath2)
@@ -1396,6 +1497,23 @@ Partial Class Main
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "Project Information"
         Me.TabPage2.UseVisualStyleBackColor = True
+        '
+        'txtVersion
+        '
+        Me.txtVersion.Location = New System.Drawing.Point(287, 369)
+        Me.txtVersion.Name = "txtVersion"
+        Me.txtVersion.ReadOnly = True
+        Me.txtVersion.Size = New System.Drawing.Size(270, 20)
+        Me.txtVersion.TabIndex = 307
+        '
+        'Label35
+        '
+        Me.Label35.AutoSize = True
+        Me.Label35.Location = New System.Drawing.Point(236, 372)
+        Me.Label35.Name = "Label35"
+        Me.Label35.Size = New System.Drawing.Size(45, 13)
+        Me.Label35.TabIndex = 306
+        Me.Label35.Text = "Version:"
         '
         'btnOpenProject2
         '
@@ -1516,7 +1634,7 @@ Partial Class Main
         '
         'txtCurrentDuration
         '
-        Me.txtCurrentDuration.Location = New System.Drawing.Point(479, 345)
+        Me.txtCurrentDuration.Location = New System.Drawing.Point(479, 343)
         Me.txtCurrentDuration.Name = "txtCurrentDuration"
         Me.txtCurrentDuration.Size = New System.Drawing.Size(85, 20)
         Me.txtCurrentDuration.TabIndex = 108
@@ -1698,6 +1816,7 @@ Partial Class Main
         'btnWebPages
         '
         Me.btnWebPages.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnWebPages.ContextMenuStrip = Me.ContextMenuStrip2
         Me.btnWebPages.Location = New System.Drawing.Point(763, 12)
         Me.btnWebPages.Name = "btnWebPages"
         Me.btnWebPages.Size = New System.Drawing.Size(68, 22)
@@ -1727,6 +1846,29 @@ Partial Class Main
         'Timer2
         '
         '
+        'btnAndorville
+        '
+        Me.btnAndorville.BackgroundImage = Global.ADVL_Network_1.My.Resources.Resources.Andorville_16May16_TM_Crop_Grey
+        Me.btnAndorville.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.btnAndorville.Font = New System.Drawing.Font("Harlow Solid Italic", 14.25!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnAndorville.Location = New System.Drawing.Point(5, 5)
+        Me.btnAndorville.Name = "btnAndorville"
+        Me.btnAndorville.Size = New System.Drawing.Size(118, 29)
+        Me.btnAndorville.TabIndex = 50
+        Me.btnAndorville.UseVisualStyleBackColor = True
+        '
+        'Timer4
+        '
+        '
+        'btnUpdateAppTreeIcon
+        '
+        Me.btnUpdateAppTreeIcon.Location = New System.Drawing.Point(346, 522)
+        Me.btnUpdateAppTreeIcon.Name = "btnUpdateAppTreeIcon"
+        Me.btnUpdateAppTreeIcon.Size = New System.Drawing.Size(107, 22)
+        Me.btnUpdateAppTreeIcon.TabIndex = 293
+        Me.btnUpdateAppTreeIcon.Text = "Update Icon"
+        Me.btnUpdateAppTreeIcon.UseVisualStyleBackColor = True
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1740,10 +1882,12 @@ Partial Class Main
         Me.Controls.Add(Me.btnExit)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "Main"
-        Me.Text = "ADVL Message Service"
+        Me.Text = "Andorville™ Network"
         Me.TabControl1.ResumeLayout(False)
         Me.TabPage3.ResumeLayout(False)
         Me.TabPage1.ResumeLayout(False)
+        Me.TabPage1.PerformLayout()
+        Me.ContextMenuStrip2.ResumeLayout(False)
         CType(Me.dgvConnections, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TabPage4.ResumeLayout(False)
         Me.SplitContainer1.Panel1.ResumeLayout(False)
@@ -1872,7 +2016,7 @@ Partial Class Main
     Friend WithEvents Label32 As Label
     Friend WithEvents btnRemoveProject As Button
     Friend WithEvents chkConnectProject As CheckBox
-    Friend WithEvents btnSendMessage As Button
+    Friend WithEvents btnAlignMessageWindow As Button
     Friend WithEvents TabPage7 As TabPage
     Friend WithEvents XmlHtmDisplay1 As ADVL_Utilities_Library_1.XmlHtmDisplay
     Friend WithEvents Label33 As Label
@@ -1899,4 +2043,18 @@ Partial Class Main
     Friend WithEvents btnOpenProject2 As Button
     Friend WithEvents Label28 As Label
     Friend WithEvents txtProjectPath2 As TextBox
+    Friend WithEvents ContextMenuStrip2 As ContextMenuStrip
+    Friend WithEvents ToolStripMenuItem1_EditWorkflowTabPage As ToolStripMenuItem
+    Friend WithEvents ToolStripMenuItem1_ShowStartPageInWorkflowTab As ToolStripMenuItem
+    Friend WithEvents Timer4 As Timer
+    Friend WithEvents chkShowApp As CheckBox
+    Friend WithEvents chkShowMessages As CheckBox
+    Friend WithEvents Label5 As Label
+    Friend WithEvents btnShowAppListInfo As Button
+    Friend WithEvents btnShowProjListInfo As Button
+    Friend WithEvents btnCheckConnection As Button
+    Friend WithEvents Label35 As Label
+    Friend WithEvents txtVersion As TextBox
+    Friend WithEvents btnRemoveWaiting As Button
+    Friend WithEvents btnUpdateAppTreeIcon As Button
 End Class
