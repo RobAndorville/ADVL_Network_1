@@ -90,10 +90,10 @@
     End Sub
 
     Private Sub CheckFormPos()
-        'Chech that the form can be seen on a screen.
+        'Check that the form can be seen on a screen.
 
-        Dim MinWidthVisible As Integer = 48 'Minimum number of X pixels visible. The form will be moved if this many form pixels are not visible.
-        Dim MinHeightVisible As Integer = 48 'Minimum number of Y pixels visible. The form will be moved if this many form pixels are not visible.
+        Dim MinWidthVisible As Integer = 192 'Minimum number of X pixels visible. The form will be moved if this many form pixels are not visible.
+        Dim MinHeightVisible As Integer = 64 'Minimum number of Y pixels visible. The form will be moved if this many form pixels are not visible.
 
         Dim FormRect As New Rectangle(Me.Left, Me.Top, Me.Width, Me.Height)
         Dim WARect As Rectangle = Screen.GetWorkingArea(FormRect) 'The Working Area rectangle - the usable area of the screen containing the form.

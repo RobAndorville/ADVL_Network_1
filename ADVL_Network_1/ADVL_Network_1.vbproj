@@ -14,7 +14,7 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>D:\My Documents\publish\ADVL_Message_Service_1\</PublishUrl>
+    <PublishUrl>D:\My Documents\publish\ADVL_Network_1\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -24,7 +24,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>12</ApplicationRevision>
+    <ApplicationRevision>19</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -66,10 +66,11 @@
     <ApplicationIcon>Message Service Blur16 Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>B84210AD13E672A0B3A03595856A0E823A3B6D91</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>5EC39FB955FFCCB8B76E97D9E2E8B09C5E20AE78</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ADVL_Message_Service_1_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -112,6 +113,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsConnection.vb" />
+    <Compile Include="frmConnectionTools.Designer.vb">
+      <DependentUpon>frmConnectionTools.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmConnectionTools.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmHtmlDisplay.Designer.vb">
       <DependentUpon>frmHtmlDisplay.vb</DependentUpon>
     </Compile>
@@ -163,6 +170,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="frmConnectionTools.resx">
+      <DependentUpon>frmConnectionTools.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmHtmlDisplay.resx">
       <DependentUpon>frmHtmlDisplay.vb</DependentUpon>
     </EmbeddedResource>
@@ -221,9 +231,15 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.vb</LastGenOutput>
     </None>
-    <None Include="Service References\ServiceReference1\configuration.svcinfo" />
-    <None Include="Service References\ServiceReference1\configuration91.svcinfo" />
-    <None Include="Service References\ServiceReference1\ADVLService.disco" />
+    <None Include="Service References\ServiceReference1\configuration.svcinfo">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ServiceReference1\configuration91.svcinfo">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ServiceReference1\ADVLService.disco">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">

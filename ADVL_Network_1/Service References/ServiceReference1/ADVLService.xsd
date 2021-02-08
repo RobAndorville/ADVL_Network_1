@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost:8733/ADVLService?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ADVL_Utilities_Library_1" />
+  <xs:import schemaLocation="http://localhost:8734/ADVLService?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ADVL_Utilities_Library_1" />
   <xs:element name="Connect">
     <xs:complexType>
       <xs:sequence>
@@ -35,6 +35,21 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="ConnectionAvailableResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ConnectionExists">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProNetName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ConnName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ConnectionExistsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ConnectionExistsResult" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -104,7 +119,9 @@
   </xs:element>
   <xs:element name="GetApplicationList">
     <xs:complexType>
-      <xs:sequence />
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ClientLocn" nillable="true" type="xs:string" />
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="GetApplicationListResponse">
@@ -120,6 +137,18 @@
     </xs:complexType>
   </xs:element>
   <xs:element name="GetApplicationInfoResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetProjectList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ClientLocn" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetProjectListResponse">
     <xs:complexType>
       <xs:sequence />
     </xs:complexType>
@@ -188,6 +217,21 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
+  <xs:element name="StartProjectWithName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProjectName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ProNetName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="AppName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ConnectionName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StartProjectWithNameResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
   <xs:element name="ProjectOpen">
     <xs:complexType>
       <xs:sequence>
@@ -202,22 +246,40 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="ConnNameFromProjPath">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProjectPath" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ConnNameFromProjPathResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ConnNameFromProjPathResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ConnNameFromProjName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProjectName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ProNetName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="AppName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ConnNameFromProjNameResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ConnNameFromProjNameResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="OnSendMessage">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="message" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="OnSendMessageCheck">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="OnSendMessageCheckResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="OnSendMessageCheckResult" nillable="true" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

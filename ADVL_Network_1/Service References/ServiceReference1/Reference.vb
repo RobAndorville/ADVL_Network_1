@@ -30,6 +30,12 @@ Namespace ServiceReference1
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/ConnectionAvailable", ReplyAction:="http://tempuri.org/IMsgService/ConnectionAvailableResponse")>  _
         Function ConnectionAvailableAsync(ByVal ProNetName As String, ByVal ConnName As String) As System.Threading.Tasks.Task(Of Boolean)
         
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/ConnectionExists", ReplyAction:="http://tempuri.org/IMsgService/ConnectionExistsResponse")>  _
+        Function ConnectionExists(ByVal ProNetName As String, ByVal ConnName As String) As Boolean
+        
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/ConnectionExists", ReplyAction:="http://tempuri.org/IMsgService/ConnectionExistsResponse")>  _
+        Function ConnectionExistsAsync(ByVal ProNetName As String, ByVal ConnName As String) As System.Threading.Tasks.Task(Of Boolean)
+        
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/SendMessage", ReplyAction:="http://tempuri.org/IMsgService/SendMessageResponse")>  _
         Sub SendMessage(ByVal proNetName As String, ByVal connName As String, ByVal message As String)
         
@@ -61,16 +67,22 @@ Namespace ServiceReference1
         Function GetConnectionListAsync() As System.Threading.Tasks.Task
         
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/GetApplicationList", ReplyAction:="http://tempuri.org/IMsgService/GetApplicationListResponse")>  _
-        Sub GetApplicationList()
+        Sub GetApplicationList(ByVal ClientLocn As String)
         
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/GetApplicationList", ReplyAction:="http://tempuri.org/IMsgService/GetApplicationListResponse")>  _
-        Function GetApplicationListAsync() As System.Threading.Tasks.Task
+        Function GetApplicationListAsync(ByVal ClientLocn As String) As System.Threading.Tasks.Task
         
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/GetApplicationInfo", ReplyAction:="http://tempuri.org/IMsgService/GetApplicationInfoResponse")>  _
         Sub GetApplicationInfo(ByVal appName As String)
         
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/GetApplicationInfo", ReplyAction:="http://tempuri.org/IMsgService/GetApplicationInfoResponse")>  _
         Function GetApplicationInfoAsync(ByVal appName As String) As System.Threading.Tasks.Task
+        
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/GetProjectList", ReplyAction:="http://tempuri.org/IMsgService/GetProjectListResponse")>  _
+        Sub GetProjectList(ByVal ClientLocn As String)
+        
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/GetProjectList", ReplyAction:="http://tempuri.org/IMsgService/GetProjectListResponse")>  _
+        Function GetProjectListAsync(ByVal ClientLocn As String) As System.Threading.Tasks.Task
         
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/GetAdvlNetworkAppInfo", ReplyAction:="http://tempuri.org/IMsgService/GetAdvlNetworkAppInfoResponse")>  _
         Sub GetAdvlNetworkAppInfo()
@@ -102,11 +114,29 @@ Namespace ServiceReference1
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/StartProjectAtPath", ReplyAction:="http://tempuri.org/IMsgService/StartProjectAtPathResponse")>  _
         Function StartProjectAtPathAsync(ByVal ProjectPath As String, ByVal ConnectionName As String) As System.Threading.Tasks.Task
         
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/StartProjectWithName", ReplyAction:="http://tempuri.org/IMsgService/StartProjectWithNameResponse")>  _
+        Sub StartProjectWithName(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String, ByVal ConnectionName As String)
+        
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/StartProjectWithName", ReplyAction:="http://tempuri.org/IMsgService/StartProjectWithNameResponse")>  _
+        Function StartProjectWithNameAsync(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String, ByVal ConnectionName As String) As System.Threading.Tasks.Task
+        
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/ProjectOpen", ReplyAction:="http://tempuri.org/IMsgService/ProjectOpenResponse")>  _
         Function ProjectOpen(ByVal ProjectPath As String) As Boolean
         
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/ProjectOpen", ReplyAction:="http://tempuri.org/IMsgService/ProjectOpenResponse")>  _
         Function ProjectOpenAsync(ByVal ProjectPath As String) As System.Threading.Tasks.Task(Of Boolean)
+        
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/ConnNameFromProjPath", ReplyAction:="http://tempuri.org/IMsgService/ConnNameFromProjPathResponse")>  _
+        Function ConnNameFromProjPath(ByVal ProjectPath As String) As String
+        
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/ConnNameFromProjPath", ReplyAction:="http://tempuri.org/IMsgService/ConnNameFromProjPathResponse")>  _
+        Function ConnNameFromProjPathAsync(ByVal ProjectPath As String) As System.Threading.Tasks.Task(Of String)
+        
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/ConnNameFromProjName", ReplyAction:="http://tempuri.org/IMsgService/ConnNameFromProjNameResponse")>  _
+        Function ConnNameFromProjName(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String) As String
+        
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/ConnNameFromProjName", ReplyAction:="http://tempuri.org/IMsgService/ConnNameFromProjNameResponse")>  _
+        Function ConnNameFromProjNameAsync(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String) As System.Threading.Tasks.Task(Of String)
     End Interface
     
     <System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")>  _
@@ -114,9 +144,6 @@ Namespace ServiceReference1
         
         <System.ServiceModel.OperationContractAttribute(IsOneWay:=true, Action:="http://tempuri.org/IMsgService/OnSendMessage")>  _
         Sub OnSendMessage(ByVal message As String)
-        
-        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/IMsgService/OnSendMessageCheck", ReplyAction:="http://tempuri.org/IMsgService/OnSendMessageCheckResponse")>  _
-        Function OnSendMessageCheck() As String
     End Interface
     
     <System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")>  _
@@ -166,6 +193,14 @@ Namespace ServiceReference1
             Return MyBase.Channel.ConnectionAvailableAsync(ProNetName, ConnName)
         End Function
         
+        Public Function ConnectionExists(ByVal ProNetName As String, ByVal ConnName As String) As Boolean Implements ServiceReference1.IMsgService.ConnectionExists
+            Return MyBase.Channel.ConnectionExists(ProNetName, ConnName)
+        End Function
+        
+        Public Function ConnectionExistsAsync(ByVal ProNetName As String, ByVal ConnName As String) As System.Threading.Tasks.Task(Of Boolean) Implements ServiceReference1.IMsgService.ConnectionExistsAsync
+            Return MyBase.Channel.ConnectionExistsAsync(ProNetName, ConnName)
+        End Function
+        
         Public Sub SendMessage(ByVal proNetName As String, ByVal connName As String, ByVal message As String) Implements ServiceReference1.IMsgService.SendMessage
             MyBase.Channel.SendMessage(proNetName, connName, message)
         End Sub
@@ -206,12 +241,12 @@ Namespace ServiceReference1
             Return MyBase.Channel.GetConnectionListAsync
         End Function
         
-        Public Sub GetApplicationList() Implements ServiceReference1.IMsgService.GetApplicationList
-            MyBase.Channel.GetApplicationList
+        Public Sub GetApplicationList(ByVal ClientLocn As String) Implements ServiceReference1.IMsgService.GetApplicationList
+            MyBase.Channel.GetApplicationList(ClientLocn)
         End Sub
         
-        Public Function GetApplicationListAsync() As System.Threading.Tasks.Task Implements ServiceReference1.IMsgService.GetApplicationListAsync
-            Return MyBase.Channel.GetApplicationListAsync
+        Public Function GetApplicationListAsync(ByVal ClientLocn As String) As System.Threading.Tasks.Task Implements ServiceReference1.IMsgService.GetApplicationListAsync
+            Return MyBase.Channel.GetApplicationListAsync(ClientLocn)
         End Function
         
         Public Sub GetApplicationInfo(ByVal appName As String) Implements ServiceReference1.IMsgService.GetApplicationInfo
@@ -220,6 +255,14 @@ Namespace ServiceReference1
         
         Public Function GetApplicationInfoAsync(ByVal appName As String) As System.Threading.Tasks.Task Implements ServiceReference1.IMsgService.GetApplicationInfoAsync
             Return MyBase.Channel.GetApplicationInfoAsync(appName)
+        End Function
+        
+        Public Sub GetProjectList(ByVal ClientLocn As String) Implements ServiceReference1.IMsgService.GetProjectList
+            MyBase.Channel.GetProjectList(ClientLocn)
+        End Sub
+        
+        Public Function GetProjectListAsync(ByVal ClientLocn As String) As System.Threading.Tasks.Task Implements ServiceReference1.IMsgService.GetProjectListAsync
+            Return MyBase.Channel.GetProjectListAsync(ClientLocn)
         End Function
         
         Public Sub GetAdvlNetworkAppInfo() Implements ServiceReference1.IMsgService.GetAdvlNetworkAppInfo
@@ -262,12 +305,36 @@ Namespace ServiceReference1
             Return MyBase.Channel.StartProjectAtPathAsync(ProjectPath, ConnectionName)
         End Function
         
+        Public Sub StartProjectWithName(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String, ByVal ConnectionName As String) Implements ServiceReference1.IMsgService.StartProjectWithName
+            MyBase.Channel.StartProjectWithName(ProjectName, ProNetName, AppName, ConnectionName)
+        End Sub
+        
+        Public Function StartProjectWithNameAsync(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String, ByVal ConnectionName As String) As System.Threading.Tasks.Task Implements ServiceReference1.IMsgService.StartProjectWithNameAsync
+            Return MyBase.Channel.StartProjectWithNameAsync(ProjectName, ProNetName, AppName, ConnectionName)
+        End Function
+        
         Public Function ProjectOpen(ByVal ProjectPath As String) As Boolean Implements ServiceReference1.IMsgService.ProjectOpen
             Return MyBase.Channel.ProjectOpen(ProjectPath)
         End Function
         
         Public Function ProjectOpenAsync(ByVal ProjectPath As String) As System.Threading.Tasks.Task(Of Boolean) Implements ServiceReference1.IMsgService.ProjectOpenAsync
             Return MyBase.Channel.ProjectOpenAsync(ProjectPath)
+        End Function
+        
+        Public Function ConnNameFromProjPath(ByVal ProjectPath As String) As String Implements ServiceReference1.IMsgService.ConnNameFromProjPath
+            Return MyBase.Channel.ConnNameFromProjPath(ProjectPath)
+        End Function
+        
+        Public Function ConnNameFromProjPathAsync(ByVal ProjectPath As String) As System.Threading.Tasks.Task(Of String) Implements ServiceReference1.IMsgService.ConnNameFromProjPathAsync
+            Return MyBase.Channel.ConnNameFromProjPathAsync(ProjectPath)
+        End Function
+        
+        Public Function ConnNameFromProjName(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String) As String Implements ServiceReference1.IMsgService.ConnNameFromProjName
+            Return MyBase.Channel.ConnNameFromProjName(ProjectName, ProNetName, AppName)
+        End Function
+        
+        Public Function ConnNameFromProjNameAsync(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String) As System.Threading.Tasks.Task(Of String) Implements ServiceReference1.IMsgService.ConnNameFromProjNameAsync
+            Return MyBase.Channel.ConnNameFromProjNameAsync(ProjectName, ProNetName, AppName)
         End Function
     End Class
 End Namespace

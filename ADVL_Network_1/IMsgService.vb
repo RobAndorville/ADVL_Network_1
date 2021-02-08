@@ -11,6 +11,9 @@ Public Interface IMsgService
     'Function ConnectionAvailable(ByVal AppNetName As String, ByVal ConnName As String) As Boolean
 
     <OperationContract()>
+    Function ConnectionExists(ByVal ProNetName As String, ByVal ConnName As String) As Boolean
+
+    <OperationContract()>
     Sub SendMessage(ByVal proNetName As String, ByVal connName As String, ByVal message As String)
     'Sub SendMessage(ByVal appNetName As String, ByVal connName As String, ByVal message As String)
     'Sub SendMessage(ByVal connName As String, ByVal message As String)
@@ -28,10 +31,17 @@ Public Interface IMsgService
     Sub GetConnectionList()
 
     <OperationContract()>
-    Sub GetApplicationList()
+    Sub GetApplicationList(ByVal ClientLocn As String)
+    'Sub GetApplicationList()
 
     <OperationContract()>
     Sub GetApplicationInfo(ByVal appName As String)
+
+    '<OperationContract()>
+    'Sub GetProjectList()
+
+    <OperationContract()>
+    Sub GetProjectList(ByVal ClientLocn As String)
 
     <OperationContract()>
     Sub GetAdvlNetworkAppInfo()
@@ -55,7 +65,16 @@ Public Interface IMsgService
     Sub StartProjectAtPath(ByVal ProjectPath As String, ByVal ConnectionName As String)
 
     <OperationContract()>
+    Sub StartProjectWithName(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String, ByVal ConnectionName As String)
+
+    <OperationContract()>
     Function ProjectOpen(ByVal ProjectPath As String) As Boolean
+
+    <OperationContract()>
+    Function ConnNameFromProjPath(ByVal ProjectPath As String) As String
+
+    <OperationContract()>
+    Function ConnNameFromProjName(ByVal ProjectName As String, ByVal ProNetName As String, ByVal AppName As String) As String
 
 End Interface
 

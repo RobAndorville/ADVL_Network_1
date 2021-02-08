@@ -56,10 +56,10 @@
     End Sub
 
     Private Sub CheckFormPos()
-        'Chech that the form can be seen on a screen.
+        'Check that the form can be seen on a screen.
 
-        Dim MinWidthVisible As Integer = 48 'Minimum number of X pixels visible. The form will be moved if this many form pixels are not visible.
-        Dim MinHeightVisible As Integer = 48 'Minimum number of Y pixels visible. The form will be moved if this many form pixels are not visible.
+        Dim MinWidthVisible As Integer = 192 'Minimum number of X pixels visible. The form will be moved if this many form pixels are not visible.
+        Dim MinHeightVisible As Integer = 64 'Minimum number of Y pixels visible. The form will be moved if this many form pixels are not visible.
 
         Dim FormRect As New Rectangle(Me.Left, Me.Top, Me.Width, Me.Height)
         Dim WARect As Rectangle = Screen.GetWorkingArea(FormRect) 'The Working Area rectangle - the usable area of the screen containing the form.
@@ -152,6 +152,53 @@
 
     Private Sub btnOpen_Click(sender As Object, e As EventArgs) Handles btnOpen.Click
         'Open the selected html file.
+        OpenWorkflowWebPage()
+
+        'If lstWebPages.SelectedItem Is Nothing Then
+        '    Main.Message.AddWarning("No page selected." & vbCrLf)
+        '    Exit Sub
+        'End If
+
+        'Dim FileName As String
+        'FileName = lstWebPages.SelectedItem.ToString
+        ''If lstWebPages.SelectedItem Is Nothing Then
+        ''    FileName = ""
+        ''Else
+        ''    FileName = lstWebPages.SelectedItem.ToString
+        ''End If
+
+        'If FileName = "" Then
+
+        'Else
+        '    'First check if the HTML file is already open:
+        '    Dim FileFound As Boolean = False
+        '    If Main.WebPageFormList.Count = 0 Then
+
+        '    Else
+        '        Dim I As Integer
+        '        For I = 0 To Main.WebPageFormList.Count - 1
+        '            If Main.WebPageFormList(I) Is Nothing Then
+
+        '            Else
+        '                If Main.WebPageFormList(I).FileName = FileName Then
+        '                    FileFound = True
+        '                    Main.WebPageFormList(I).BringToFront
+        '                End If
+        '            End If
+        '        Next
+        '    End If
+
+        '    If FileFound = False Then
+        '        Dim FormNo As Integer = Main.OpenNewWebPage()
+        '        Main.WebPageFormList(FormNo).FileName = FileName
+        '        Main.WebPageFormList(FormNo).OpenDocument
+        '    End If
+
+        'End If
+    End Sub
+
+    Private Sub OpenWorkflowWebPage()
+        'Open the selected Workflow Web Page:
 
         If lstWebPages.SelectedItem Is Nothing Then
             Main.Message.AddWarning("No page selected." & vbCrLf)
@@ -160,11 +207,6 @@
 
         Dim FileName As String
         FileName = lstWebPages.SelectedItem.ToString
-        'If lstWebPages.SelectedItem Is Nothing Then
-        '    FileName = ""
-        'Else
-        '    FileName = lstWebPages.SelectedItem.ToString
-        'End If
 
         If FileName = "" Then
 
@@ -192,9 +234,9 @@
                 Main.WebPageFormList(FormNo).FileName = FileName
                 Main.WebPageFormList(FormNo).OpenDocument
             End If
-
         End If
     End Sub
+
 
     Private Sub btnEdit_Click(sender As Object, e As EventArgs) Handles btnEdit.Click
         'Edit the selected html file.
@@ -216,7 +258,7 @@
         End If
     End Sub
 
-    Private Sub btnNew_Click(sender As Object, e As EventArgs) Handles btnNew.Click
+    Private Sub btnNew_Click(sender As Object, e As EventArgs) 
         'Create a new HTML file and open it in an HTML edit window.
 
         Dim PageTitle As String = Trim(txtNewHtmlFileTitle.Text)
@@ -236,6 +278,8 @@
         Else
             FileName = txtNewHtmlFileName.Text & ".html"
         End If
+
+        txtNewHtmlFileName.Text = FileName
 
         If Main.Project.DataFileExists(FileName) Then
             Main.Message.AddWarning("HTML file already exists: " & FileName & vbCrLf)
@@ -301,6 +345,52 @@
     Private Sub btnHome_Click(sender As Object, e As EventArgs) Handles btnHome.Click
         'Show Home page in Workflow tab of the Main form.
         Main.OpenStartPage()
+    End Sub
+
+    Private Sub lstWebPages_SelectedIndexChanged(sender As Object, e As EventArgs) Handles lstWebPages.SelectedIndexChanged
+        'A new Workflow file has been selected.
+        'Show the file creation date and last edit date:
+
+        Dim FileName As String
+        FileName = lstWebPages.SelectedItem.ToString
+        If FileName = "" Then
+            txtCreated.Text = ""
+            txtEdited.Text = ""
+        Else
+            Dim FileCreationDate As Date = Main.Project.DataFileCreationDate(FileName)
+            txtCreated.Text = FileCreationDate.ToString
+
+            Dim FileLastEditDate As Date = Main.Project.DataFileLastEditDate(FileName)
+            txtEdited.Text = FileLastEditDate.ToString
+
+            'Get the Workflow description:
+            Dim WorkflowPage As String
+            Dim WorkflowPageStream As New IO.MemoryStream
+            Main.Project.ReadData(FileName, WorkflowPageStream)
+            WorkflowPageStream.Position = 0
+            Dim sr As New IO.StreamReader(WorkflowPageStream)
+            WorkflowPage = sr.ReadToEnd
+
+            'The Regular Expression should match the "Workflow description." in the HTML <meta> tag below:
+            '<meta name="description" content="Workflow description.">
+            Dim DescrPattern As String = "<meta name=""description"" content=""(?<Description>.+)"">"
+
+            Dim myRegEx As New System.Text.RegularExpressions.Regex(DescrPattern)
+            Dim myMatch As System.Text.RegularExpressions.Match = myRegEx.Match(WorkflowPage)
+
+            If myMatch.Success Then
+                'Main.Message.Add("Match" & vbCrLf)
+                txtDescription.Text = myMatch.Groups("Description").ToString
+            Else
+                'Main.Message.Add("No Match" & vbCrLf)
+                txtDescription.Text = ""
+            End If
+        End If
+    End Sub
+
+    Private Sub lstWebPages_DoubleClick(sender As Object, e As EventArgs) Handles lstWebPages.DoubleClick
+        'Open the selected Workflow on Double-click.
+        OpenWorkflowWebPage()
     End Sub
 
 #End Region 'Form Methods ---------------------------------------------------------------------------------------------------------------------------------------------------------------------

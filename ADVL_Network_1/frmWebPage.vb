@@ -169,10 +169,10 @@ Public Class frmWebPage
     End Sub
 
     Private Sub CheckFormPos()
-        'Chech that the form can be seen on a screen.
+        'Check that the form can be seen on a screen.
 
-        Dim MinWidthVisible As Integer = 48 'Minimum number of X pixels visible. The form will be moved if this many form pixels are not visible.
-        Dim MinHeightVisible As Integer = 48 'Minimum number of Y pixels visible. The form will be moved if this many form pixels are not visible.
+        Dim MinWidthVisible As Integer = 192 'Minimum number of X pixels visible. The form will be moved if this many form pixels are not visible.
+        Dim MinHeightVisible As Integer = 64 'Minimum number of Y pixels visible. The form will be moved if this many form pixels are not visible.
 
         Dim FormRect As New Rectangle(Me.Left, Me.Top, Me.Width, Me.Height)
         Dim WARect As Rectangle = Screen.GetWorkingArea(FormRect) 'The Working Area rectangle - the usable area of the screen containing the form.
@@ -277,60 +277,485 @@ Public Class frmWebPage
         'Open the document specified by FileName, FileLocationType and FileDirectory.
 
         If FileLocationType = LocationTypes.Project Then
-
             Dim rtbData As New IO.MemoryStream
             Main.Project.ReadData(FileName, rtbData)
             rtbData.Position = 0
             Dim sr As New IO.StreamReader(rtbData)
-
             WebBrowser1.DocumentText = sr.ReadToEnd()
-
         Else
-
             WebBrowser1.Navigate("file:///" & FileDirectory & "\" & FileName)
-
         End If
-
     End Sub
 
+    Private Sub btnEdit_Click(sender As Object, e As EventArgs) Handles btnEdit.Click
+        'Edit the html file.
+
+        Dim FileName As String
+        FileName = txtDocumentFile.Text
+
+        If FileName = "" Then
+            Main.Message.AddWarning("No page selected." & vbCrLf)
+        Else
+            Dim FormNo As Integer = Main.OpenNewHtmlDisplayPage()
+            Main.HtmlDisplayFormList(FormNo).FileName = FileName
+            Main.HtmlDisplayFormList(FormNo).OpenDocument
+        End If
+    End Sub
 
 #Region " Methods Called by JavaScript - A collection of methods that can be called by JavaScript in a web page shown in WebBrowser1" '========================================================
 
-    Public Sub JSMethodTest1()
-        'Test method that is called from JavaScript.
-        Main.Message.Add("JSMethodTest1 called OK." & vbCrLf)
-    End Sub
+    'Display Messages ==============================================================================================
 
-    Public Sub JSMethodTest2(ByVal Var1 As String, ByVal Var2 As String)
-        'Test method that is called from JavaScript.
-        Main.Message.Add("Var1 = " & Var1 & " Var2 = " & Var2 & vbCrLf)
-    End Sub
-
-    Public Sub JSDisplayXml(ByRef XDoc As XDocument)
-        Main.Message.Add(XDoc.ToString & vbCrLf & vbCrLf)
-    End Sub
-
-    Public Sub ShowMessage(ByVal Msg As String)
+    Public Sub AddMessage(ByVal Msg As String)
+        'Add a normal text message to the Message window.
         Main.Message.Add(Msg)
     End Sub
 
-    Public Sub SaveHtmlSettings_Old2(ByVal xSettings As String, ByVal FileName As String)
-        'Save the Html settings for a web page.
+    Public Sub AddWarning(ByVal Msg As String)
+        'Add a warning text message to the Message window.
+        Main.Message.AddWarning(Msg)
+    End Sub
 
-        'Convert the XSettings to XML format:
-        Dim XmlHeader As String = "<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>"
+    Public Sub AddTextTypeMessage(ByVal Msg As String, ByVal TextType As String)
+        'Add a message with the specified Text Type to the Message window.
+        Main.Message.AddText(Msg, TextType)
+    End Sub
 
-        Dim XDocSettings As New System.Xml.Linq.XDocument
+    Public Sub AddXmlMessage(ByVal XmlText As String)
+        'Add an Xml message to the Message window.
+        Main.Message.AddXml(XmlText)
+    End Sub
 
+    'END Display Messages ------------------------------------------------------------------------------------------
+
+
+    'Run an XSequence ==============================================================================================
+
+    Public Sub RunClipboardXSeq()
+        'Run the XSequence instructions in the clipboard.
+
+        Dim XDocSeq As System.Xml.Linq.XDocument
         Try
-            XDocSettings = System.Xml.Linq.XDocument.Parse(XmlHeader & vbCrLf & xSettings)
+            XDocSeq = XDocument.Parse(My.Computer.Clipboard.GetText)
         Catch ex As Exception
-            Main.Message.AddWarning("Error saving HTML settings file. " & ex.Message & vbCrLf)
+            Main.Message.AddWarning("Error reading Clipboard data. " & ex.Message & vbCrLf)
+            Exit Sub
         End Try
 
-        Main.Project.SaveXmlData(FileName, XDocSettings)
+        If IsNothing(XDocSeq) Then
+            Main.Message.Add("No XSequence instructions were found in the clipboard.")
+            'Exit Sub
+        Else
+            Dim XmlSeq As New System.Xml.XmlDocument
+            Try
+                XmlSeq.LoadXml(XDocSeq.ToString) 'Convert XDocSeq to an XmlDocument to process with XSeq.
 
+                'Run the sequence:
+                XSeq.RunXSequence(XmlSeq, Status)
+            Catch ex As Exception
+                Main.Message.AddWarning("Error restoring HTML settings. " & ex.Message & vbCrLf)
+            End Try
+        End If
     End Sub
+
+    Public Sub RunXSequence(ByVal XSequence As String)
+        'Run the XSequence
+        Dim XmlSeq As New System.Xml.XmlDocument
+        XmlSeq.LoadXml(XSequence)
+        Main.XSeq.RunXSequence(XmlSeq, Status)
+    End Sub
+
+    Private Sub XSeq_ErrorMsg(ErrMsg As String) Handles XSeq.ErrorMsg
+        Main.Message.AddWarning(ErrMsg & vbCrLf)
+    End Sub
+
+    Private Sub XSeq_Instruction(Data As String, Locn As String) Handles XSeq.Instruction
+        'Execute each instruction produced by running the XSeq file.
+
+        Select Case Locn
+            Case "Settings:SendData:LatDegrees" 'REDUNDANT!
+                RestoreSetting("SendData", "LatDegrees", Data)
+
+            Case "Settings:SendData:LongDegrees" 'REDUNDANT!
+                RestoreSetting("SendData", "LongDegrees", Data)
+
+            Case "Settings:Form:Name"
+                FormName = Data
+
+            Case "Settings:Form:Item:Name"
+                ItemName = Data
+
+            Case "Settings:Form:Item:Value"
+                RestoreSetting(FormName, ItemName, Data)
+
+            Case "Settings:Form:SelectId"
+                SelectId = Data
+
+            Case "Settings:Form:OptionText"
+                RestoreOption(SelectId, Data)
+
+            Case "Settings"
+
+            Case "EndOfSequence"
+                'Main.Message.Add("End of processing sequence" & Data & vbCrLf)
+
+            Case Else
+                'Main.Message.AddWarning("Unknown location: " & Locn & "  Data: " & Data & vbCrLf)
+
+                'If the instructions are not saved web page settings identified above, send them directly to the web page:
+                XMsgInstruction(Data, Locn) 'The JavaScript function (also called XMsgInstruction) will attempt to process this instruction.
+
+        End Select
+    End Sub
+
+    'END Run an XSequence ------------------------------------------------------------------------------------------
+
+
+    'Run an XMessage ===============================================================================================
+
+    Public Sub RunXMessage(ByVal XMsg As String)
+        'Run the XMessage by sending it to Main.InstrReceived.
+        Main.InstrReceived = XMsg
+    End Sub
+
+    Public Sub SendXMessage(ByVal ConnName As String, ByVal XMsg As String)
+        'Send the XMsg to the Project with the connection name ConnName.
+        If IsNothing(Main.client) Then
+            Main.Message.Add("No client connection available!" & vbCrLf)
+        Else
+            If Main.client.State = ServiceModel.CommunicationState.Faulted Then
+                Main.Message.Add("client state is faulted. Message not sent!" & vbCrLf)
+            Else
+                If Main.bgwSendMessage.IsBusy Then
+                    Main.Message.AddWarning("Send Message backgroundworker is busy." & vbCrLf)
+                Else
+                    Dim SendMessageParams As New Main.clsSendMessageParams
+                    'SendMessageParams.ProjectNetworkName = Main.ProNetName
+                    SendMessageParams.ProjectNetworkName = ""
+                    SendMessageParams.ConnectionName = ConnName
+                    SendMessageParams.Message = XMsg
+                    Main.bgwSendMessage.RunWorkerAsync(SendMessageParams)
+                    If Main.ShowXMessages Then
+                        'Main.Message.XAddText("Message sent to " & "[" & Main.ProNetName & "]." & ConnName & ":" & vbCrLf, "XmlSentNotice")
+                        Main.Message.XAddText("Message sent to " & "[" & "" & "]." & ConnName & ":" & vbCrLf, "XmlSentNotice")
+                        Main.Message.XAddXml(XMsg)
+                        Main.Message.XAddText(vbCrLf, "Normal") 'Add extra line
+                    End If
+                End If
+            End If
+        End If
+    End Sub
+
+    Public Sub SendXMessageExt(ByVal ProNetName As String, ByVal ConnName As String, ByVal XMsg As String)
+        'Send the XMsg to the application with the connection name ConnName and Project Network Name ProNetname.
+        'This version can send the XMessage to a connection external to the current Project Network.
+        If IsNothing(Main.client) Then
+            Main.Message.Add("No client connection available!" & vbCrLf)
+        Else
+            If Main.client.State = ServiceModel.CommunicationState.Faulted Then
+                Main.Message.Add("client state is faulted. Message not sent!" & vbCrLf)
+            Else
+                If Main.bgwSendMessage.IsBusy Then
+                    Main.Message.AddWarning("Send Message backgroundworker is busy." & vbCrLf)
+                Else
+                    Dim SendMessageParams As New Main.clsSendMessageParams
+                    SendMessageParams.ProjectNetworkName = ProNetName
+                    SendMessageParams.ConnectionName = ConnName
+                    SendMessageParams.Message = XMsg
+                    Main.bgwSendMessage.RunWorkerAsync(SendMessageParams)
+                    If Main.ShowXMessages Then
+                        Main.Message.XAddText("Message sent to " & "[" & ProNetName & "]." & ConnName & ":" & vbCrLf, "XmlSentNotice")
+                        Main.Message.XAddXml(XMsg)
+                        Main.Message.XAddText(vbCrLf, "Normal") 'Add extra line
+                    End If
+                End If
+            End If
+        End If
+    End Sub
+
+    Public Sub SendXMessageWait(ByVal ConnName As String, ByVal XMsg As String)
+        'Send the XMsg to the application with the connection name ConnName.
+        'Wait for the connection to be made.
+        If IsNothing(Main.client) Then
+            Main.Message.Add("No client connection available!" & vbCrLf)
+        Else
+            Try
+                'Application.DoEvents() 'TRY THE METHOD WITHOUT THE DOEVENTS
+                If Main.client.State = ServiceModel.CommunicationState.Faulted Then
+                    Main.Message.Add("client state is faulted. Message not sent!" & vbCrLf)
+                Else
+                    Dim StartTime As Date = Now
+                    Dim Duration As TimeSpan
+                    'Wait up to 16 seconds for the connection ConnName to be established
+                    'While Main.client.ConnectionExists(Main.ProNetName, ConnName) = False 'Wait until the required connection is made.
+                    While Main.client.ConnectionExists("", ConnName) = False 'Wait until the required connection is made.
+                        System.Threading.Thread.Sleep(1000) 'Pause for 1000ms
+                        Duration = Now - StartTime
+                        If Duration.Seconds > 16 Then Exit While
+                    End While
+
+                    'If Main.client.ConnectionExists(Main.ProNetName, ConnName) = False Then
+                    If Main.client.ConnectionExists("", ConnName) = False Then
+                        'Main.Message.AddWarning("Connection not available: " & ConnName & " in application network: " & Main.ProNetName & vbCrLf)
+                        Main.Message.AddWarning("Connection not available: " & ConnName & " in application network: " & "" & vbCrLf)
+                    Else
+                        If Main.bgwSendMessage.IsBusy Then
+                            Main.Message.AddWarning("Send Message backgroundworker is busy." & vbCrLf)
+                        Else
+                            Dim SendMessageParams As New Main.clsSendMessageParams
+                            'SendMessageParams.ProjectNetworkName = Main.ProNetName
+                            SendMessageParams.ProjectNetworkName = ""
+                            SendMessageParams.ConnectionName = ConnName
+                            SendMessageParams.Message = XMsg
+                            Main.bgwSendMessage.RunWorkerAsync(SendMessageParams)
+                            If Main.ShowXMessages Then
+                                'Main.Message.XAddText("Message sent to " & "[" & Main.ProNetName & "]." & ConnName & ":" & vbCrLf, "XmlSentNotice")
+                                Main.Message.XAddText("Message sent to " & "[" & "" & "]." & ConnName & ":" & vbCrLf, "XmlSentNotice")
+                                Main.Message.XAddXml(XMsg)
+                                Main.Message.XAddText(vbCrLf, "Normal") 'Add extra line
+                            End If
+                        End If
+                    End If
+                End If
+            Catch ex As Exception
+                Main.Message.AddWarning(ex.Message & vbCrLf)
+            End Try
+        End If
+    End Sub
+
+    Public Sub SendXMessageExtWait(ByVal ProNetName As String, ByVal ConnName As String, ByVal XMsg As String)
+        'Send the XMsg to the application with the connection name ConnName and Project Network Name ProNetName.
+        'Wait for the connection to be made.
+        'This version can send the XMessage to a connection external to the current Project Network.
+        If IsNothing(Main.client) Then
+            Main.Message.Add("No client connection available!" & vbCrLf)
+        Else
+            If Main.client.State = ServiceModel.CommunicationState.Faulted Then
+                Main.Message.Add("client state is faulted. Message not sent!" & vbCrLf)
+            Else
+                Dim StartTime As Date = Now
+                Dim Duration As TimeSpan
+                'Wait up to 16 seconds for the connection ConnName to be established
+                While Main.client.ConnectionExists(ProNetName, ConnName) = False
+                    System.Threading.Thread.Sleep(1000) 'Pause for 1000ms
+                    Duration = Now - StartTime
+                    If Duration.Seconds > 16 Then Exit While
+                End While
+
+                If Main.client.ConnectionExists(ProNetName, ConnName) = False Then
+                    Main.Message.AddWarning("Connection not available: " & ConnName & " in application network: " & ProNetName & vbCrLf)
+                Else
+                    If Main.bgwSendMessage.IsBusy Then
+                        Main.Message.AddWarning("Send Message backgroundworker is busy." & vbCrLf)
+                    Else
+                        Dim SendMessageParams As New Main.clsSendMessageParams
+                        SendMessageParams.ProjectNetworkName = ProNetName
+                        SendMessageParams.ConnectionName = ConnName
+                        SendMessageParams.Message = XMsg
+                        Main.bgwSendMessage.RunWorkerAsync(SendMessageParams)
+                        If Main.ShowXMessages Then
+                            Main.Message.XAddText("Message sent to " & "[" & ProNetName & "]." & ConnName & ":" & vbCrLf, "XmlSentNotice")
+                            Main.Message.XAddXml(XMsg)
+                            Main.Message.XAddText(vbCrLf, "Normal") 'Add extra line
+                        End If
+                    End If
+                End If
+            End If
+        End If
+    End Sub
+
+    Public Sub XMsgInstruction(ByVal Info As String, ByVal Locn As String)
+        'Send the XMessage Instruction to the JavaScript function XMsgInstruction for processing.
+        Me.WebBrowser1.Document.InvokeScript("XMsgInstruction", New String() {Info, Locn})
+    End Sub
+
+    'END Run an XMessage -------------------------------------------------------------------------------------------
+
+
+    'Get Information ===============================================================================================
+
+    Public Function GetFormNo() As String
+        'Return the Form Number of the current instance of the WebView form.
+        Return FormNo.ToString
+    End Function
+
+    Public Function GetParentFormNo() As String
+        'Return the Form Number of the Parent Form (that called this form).
+        Return ParentWebPageFormNo.ToString
+    End Function
+
+    Public Function GetConnectionName() As String
+        'Return the Connection Name of the Project.
+        Return Main.ConnectionName
+    End Function
+
+    Public Function GetProNetName() As String
+        'Return the Project Network Name of the Project.
+        'Return Main.ProNetName
+        Return ""
+    End Function
+
+    Public Sub ParentProjectName(ByVal FormName As String, ByVal ItemName As String)
+        'Return the Parent Project name:
+        RestoreSetting(FormName, ItemName, Main.Project.ParentProjectName)
+        'RestoreSetting(FormName, ItemName, "")
+    End Sub
+
+    Public Sub ParentProjectPath(ByVal FormName As String, ByVal ItemName As String)
+        'Return the Parent Project path:
+        RestoreSetting(FormName, ItemName, Main.Project.ParentProjectPath)
+        'RestoreSetting(FormName, ItemName, "")
+    End Sub
+
+    Public Sub ParentProjectParameterValue(ByVal FormName As String, ByVal ItemName As String, ByVal ParameterName As String)
+        'Return the specified Parent Project parameter value:
+        RestoreSetting(FormName, ItemName, Main.Project.ParentParameter(ParameterName).Value)
+        'RestoreSetting(FormName, ItemName, "")
+    End Sub
+
+    Public Sub ProjectParameterValue(ByVal FormName As String, ByVal ItemName As String, ByVal ParameterName As String)
+        'Return the specified Project parameter value:
+        RestoreSetting(FormName, ItemName, Main.Project.Parameter(ParameterName).Value)
+    End Sub
+
+    Public Sub ProjectNetworkName(ByVal FormName As String, ByVal ItemName As String)
+        'Return the name of the Project Network:
+        'RestoreSetting(FormName, ItemName, Main.Project.Parameter("ProNetName").Value)
+        RestoreSetting(FormName, ItemName, "")
+    End Sub
+
+    'END Get Information -------------------------------------------------------------------------------------------
+
+
+    'Open a Web Page ===============================================================================================
+
+    Public Sub OpenWebPage(ByVal WebPageFileName As String)
+        'Open a Web Page from the WebPageFileName.
+        '  Pass the ParentName Property to the new web page. The is the name of this web page that is opening the new page.
+        '  Pass the ParentWebPageFormNo Property to the new web page. This is the FormNo of this web page that is opening the new page.
+        '    A hash code is generated from the ParentName. This is used to define a file name to save and restore the Web Page settings.
+        '    The new web page can pass instructions back to the ParentWebPage using its ParentWebPageFormNo.
+
+        Dim NewFormNo As Integer = Main.OpenNewWebPage()
+
+        Main.WebPageFormList(NewFormNo).ParentWebPageFileName = FileName 'Set the Parent Web Page property.
+        Main.WebPageFormList(NewFormNo).ParentWebPageFormNo = FormNo 'Set the Parent Form Number property.
+        Main.WebPageFormList(NewFormNo).Description = ""             'The web page description can be blank.
+        Main.WebPageFormList(NewFormNo).FileDirectory = ""           'Only Web files in the Project directory can be opened from another Web Page Form.
+        Main.WebPageFormList(NewFormNo).FileLocationType = LocationTypes.Project 'Only Web files in the Project directory can be opened from another Web Page Form.
+        Main.WebPageFormList(NewFormNo).FileName = WebPageFileName  'Set the web page file name to be opened.
+        Main.WebPageFormList(NewFormNo).OpenDocument                'Open the web page file name.
+    End Sub
+
+    'END Open a Web Page -------------------------------------------------------------------------------------------
+
+
+    'Open and Close Projects =======================================================================================
+
+    Public Sub OpenProjectAtRelativePath(ByVal RelativePath As String, ByVal ConnectionName As String)
+        'Open the Project at the specified Relative Path using the specified Connection Name.
+
+        Dim ProjectPath As String
+        If RelativePath.StartsWith("\") Then
+            ProjectPath = Main.Project.Path & RelativePath
+            Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+        Else
+            ProjectPath = Main.Project.Path & "\" & RelativePath
+            Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+        End If
+    End Sub
+
+    Public Sub CheckOpenProjectAtRelativePath(ByVal RelativePath As String, ByVal ConnectionName As String)
+        'Check if the project at the specified Relative Path is open.
+        'Open it if it is not already open.
+        'Open the Project at the specified Relative Path using the specified Connection Name.
+
+        Dim ProjectPath As String
+        If RelativePath.StartsWith("\") Then
+            ProjectPath = Main.Project.Path & RelativePath
+            If Main.client.ProjectOpen(ProjectPath) Then
+                'Project is already open.
+            Else
+                Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+            End If
+        Else
+            ProjectPath = Main.Project.Path & "\" & RelativePath
+            If Main.client.ProjectOpen(ProjectPath) Then
+                'Project is already open.
+            Else
+                Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+            End If
+        End If
+    End Sub
+
+    Public Sub OpenProjectAtProNetPath(ByVal RelativePath As String, ByVal ConnectionName As String)
+        'Open the Project at the specified Path (relative to the Project Network Path) using the specified Connection Name.
+
+        Dim ProjectPath As String
+        If RelativePath.StartsWith("\") Then
+            If Main.Project.ParameterExists("ProNetPath") Then
+                ProjectPath = Main.Project.GetParameter("ProNetPath") & RelativePath
+                Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+            Else
+                Main.Message.AddWarning("The Project Network Path is not known." & vbCrLf)
+            End If
+        Else
+            If Main.Project.ParameterExists("ProNetPath") Then
+                ProjectPath = Main.Project.GetParameter("ProNetPath") & "\" & RelativePath
+                Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+            Else
+                Main.Message.AddWarning("The Project Network Path is not known." & vbCrLf)
+            End If
+        End If
+    End Sub
+
+    Public Sub CheckOpenProjectAtProNetPath(ByVal RelativePath As String, ByVal ConnectionName As String)
+        'Check if the project at the specified Path (relative to the Project Network Path) is open.
+        'Open it if it is not already open.
+        'Open the Project at the specified Path using the specified Connection Name.
+
+        Dim ProjectPath As String
+        If RelativePath.StartsWith("\") Then
+            If Main.Project.ParameterExists("ProNetPath") Then
+                ProjectPath = Main.Project.GetParameter("ProNetPath") & RelativePath
+                Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+                If Main.client.ProjectOpen(ProjectPath) Then
+                    'Project is already open.
+                Else
+                    Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+                End If
+            Else
+                Main.Message.AddWarning("The Project Network Path is not known." & vbCrLf)
+            End If
+        Else
+            If Main.Project.ParameterExists("ProNetPath") Then
+                ProjectPath = Main.Project.GetParameter("ProNetPath") & "\" & RelativePath
+                Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+                If Main.client.ProjectOpen(ProjectPath) Then
+                    'Project is already open.
+                Else
+                    Main.client.StartProjectAtPath(ProjectPath, ConnectionName)
+                End If
+            Else
+                Main.Message.AddWarning("The Project Network Path is not known." & vbCrLf)
+            End If
+        End If
+    End Sub
+
+    Public Sub CloseProjectAtConnection(ByVal ProNetName As String, ByVal ConnectionName As String)
+        'Close the application at the specified connection.
+        Main.CloseProjectAtConnection(ProNetName, ConnectionName)
+    End Sub
+
+    'Public Sub CloseProjectAtConnection(ByVal ProNetName As String, ByVal ConnectionName As String)
+    '    'Close the application at the specified connection.
+    '    'Main.CloseProjectAtConnection(ProNetName, ConnectionName)
+    'End Sub
+
+    'END Open and Close Projects -----------------------------------------------------------------------------------
+
+
+    'System Methods ================================================================================================
 
     Public Sub SaveHtmlSettings(ByVal xSettings As String)
         'Save the Html settings for a web page.
@@ -354,29 +779,6 @@ Public Class frmWebPage
 
         Main.Project.SaveXmlData(SettingsFileName, XDocSettings)
 
-    End Sub
-
-    Public Sub RestoreHtmlSettings_Old2(ByVal FileName As String)
-        'Restore the Html settings for a web page.
-
-        Dim XDocSettings As New System.Xml.Linq.XDocument
-        Main.Project.ReadXmlData(FileName, XDocSettings)
-
-        If XDocSettings Is Nothing Then
-            Main.Message.Add("No HTML Settings file : " & FileName & vbCrLf)
-        Else
-
-            Dim XSettings As New System.Xml.XmlDocument
-            Try
-                XSettings.LoadXml(XDocSettings.ToString)
-
-                'Run the Settings file:
-                XSeq.RunXSequence(XSettings, Status)
-            Catch ex As Exception
-                Main.Message.AddWarning("Error restoring HTML settings. " & ex.Message & vbCrLf)
-            End Try
-
-        End If
     End Sub
 
     Public Sub RestoreHtmlSettings()
@@ -403,79 +805,7 @@ Public Class frmWebPage
             Catch ex As Exception
                 Main.Message.AddWarning("Error restoring HTML settings. " & ex.Message & vbCrLf)
             End Try
-
         End If
-    End Sub
-
-    Private Sub XSeq_ErrorMsg(ErrMsg As String) Handles XSeq.ErrorMsg
-        Main.Message.AddWarning(ErrMsg & vbCrLf)
-    End Sub
-
-    Public Sub RunClipboardXSeq()
-        'Run the XSequence instructions in the clipboard.
-
-        Dim XDocSeq As System.Xml.Linq.XDocument
-        Try
-            XDocSeq = XDocument.Parse(My.Computer.Clipboard.GetText)
-        Catch ex As Exception
-            Main.Message.AddWarning("Error reading Clipboard data. " & ex.Message & vbCrLf)
-            Exit Sub
-        End Try
-
-        If IsNothing(XDocSeq) Then
-            Main.Message.Add("No XSequence instructions were found in the clipboard.")
-        Else
-            Dim XmlSeq As New System.Xml.XmlDocument
-            Try
-                XmlSeq.LoadXml(XDocSeq.ToString) 'Convert XDocSeq to an XmlDocument to process with XSeq.
-
-                'Run the sequence:
-                XSeq.RunXSequence(XmlSeq, Status)
-            Catch ex As Exception
-                Main.Message.AddWarning("Error restoring HTML settings. " & ex.Message & vbCrLf)
-            End Try
-        End If
-
-    End Sub
-
-
-    Private Sub XSeq_Instruction(Info As String, Locn As String) Handles XSeq.Instruction
-        'Execute each instruction produced by running the XSeq file.
-
-        Select Case Locn
-            Case "Settings:SendData:LatDegrees" 'REDUNDANT!
-                RestoreSetting("SendData", "LatDegrees", Info)
-
-            Case "Settings:SendData:LongDegrees" 'REDUNDANT!
-                RestoreSetting("SendData", "LongDegrees", Info)
-
-            Case "Settings:Form:Name"
-                FormName = Info
-
-            Case "Settings:Form:Item:Name"
-                ItemName = Info
-
-            Case "Settings:Form:Item:Value"
-                RestoreSetting(FormName, ItemName, Info)
-
-            Case "Settings:Form:SelectId"
-                SelectId = Info
-
-            Case "Settings:Form:OptionText"
-                RestoreOption(SelectId, Info)
-
-            Case "Settings"
-
-            Case "EndOfSequence"
-                'Main.Message.Add("End of processing sequence" & Info & vbCrLf)
-
-            Case Else
-                'Main.Message.AddWarning("Unknown location: " & Locn & "  Info: " & Info & vbCrLf)
-
-                'If the instructions are not saved web page settings identified above, send them directly to the web page:
-                XMsgInstruction(Info, Locn) 'The JavaScript function (also called XMsgInstruction) will attempt to process this instruction.
-
-        End Select
     End Sub
 
     Public Sub RestoreSetting(ByVal FormName As String, ByVal ItemName As String, ByVal ItemValue As String)
@@ -483,7 +813,6 @@ Public Class frmWebPage
         Me.WebBrowser1.Document.InvokeScript("RestoreSetting", New String() {FormName, ItemName, ItemValue})
     End Sub
 
-    'Public Sub RestoreOption(ByVal FormName As String, ByVal SelectId As String, ByVal OptionText As String)
     Public Sub RestoreOption(ByVal SelectId As String, ByVal OptionText As String)
         'Restore the Option text in the Select control with the Id SelectId.
         Me.WebBrowser1.Document.InvokeScript("RestoreOption", New String() {SelectId, OptionText})
@@ -496,83 +825,74 @@ Public Class frmWebPage
         Catch ex As Exception
             Main.Message.AddWarning("Web page settings not saved: " & ex.Message & vbCrLf)
         End Try
-
     End Sub
 
-    Public Function GetFormNo() As String
-        'Return the Form Number of the current instance of the WebView form.
-        Return FormNo.ToString
-    End Function
+    'END System Methods --------------------------------------------------------------------------------------------
 
-    Public Function GetParentFormNo() As String
-        'Return the Form Number of the Parent Form (that called this form).
-        Return ParentWebPageFormNo.ToString
-    End Function
 
-    Public Sub RunXMessage(ByVal XMsg As String)
-        'Run the XMessage by sending it to Main.InstrReceived.
-        Main.InstrReceived = XMsg
+    'Legacy Code (These methods should no longer be used) ==========================================================
+
+    Public Sub JSMethodTest1()
+        'Test method that is called from JavaScript.
+        Main.Message.Add("JSMethodTest1 called OK." & vbCrLf)
     End Sub
 
-    Public Sub RunXSequence(ByVal XSequence As String)
-        'Run the XMSequence
-        Dim XmlSeq As New System.Xml.XmlDocument
-        XmlSeq.LoadXml(XSequence)
-        Main.XSeq.RunXSequence(XmlSeq, Status)
+    Public Sub JSMethodTest2(ByVal Var1 As String, ByVal Var2 As String)
+        'Test method that is called from JavaScript.
+        Main.Message.Add("Var1 = " & Var1 & " Var2 = " & Var2 & vbCrLf)
+    End Sub
 
+    Public Sub JSDisplayXml(ByRef XDoc As XDocument)
+        Main.Message.Add(XDoc.ToString & vbCrLf & vbCrLf)
+    End Sub
+
+    Public Sub ShowMessage(ByVal Msg As String)
+        Main.Message.Add(Msg)
     End Sub
 
     Public Sub AddText(ByVal Msg As String, ByVal TextType As String)
         Main.Message.AddText(Msg, TextType)
     End Sub
 
-    Public Sub AddMessage(ByVal Msg As String)
-        Main.Message.Add(Msg)
+    Public Sub SaveHtmlSettings_Old2(ByVal xSettings As String, ByVal FileName As String)
+        'Save the Html settings for a web page.
+
+        'Convert the XSettings to XML format:
+        Dim XmlHeader As String = "<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>"
+        Dim XDocSettings As New System.Xml.Linq.XDocument
+
+        Try
+            XDocSettings = System.Xml.Linq.XDocument.Parse(XmlHeader & vbCrLf & xSettings)
+        Catch ex As Exception
+            Main.Message.AddWarning("Error saving HTML settings file. " & ex.Message & vbCrLf)
+        End Try
+        Main.Project.SaveXmlData(FileName, XDocSettings)
     End Sub
 
-    Public Sub AddWarning(ByVal Msg As String)
-        Main.Message.AddWarning(Msg)
-    End Sub
+    Public Sub RestoreHtmlSettings_Old2(ByVal FileName As String)
+        'Restore the Html settings for a web page.
 
-    Public Sub XMsgInstruction(ByVal Info As String, ByVal Locn As String)
-        'Send the XMessage Instruction to the JavaScript function XMsgInstruction for processing.
-        Me.WebBrowser1.Document.InvokeScript("XMsgInstruction", New String() {Info, Locn})
-    End Sub
+        Dim XDocSettings As New System.Xml.Linq.XDocument
+        Main.Project.ReadXmlData(FileName, XDocSettings)
 
-    'Public Sub OpenWebPage(ByVal WebPageFileName As String, ByVal ParentWebPageName As String, ByVal ParentWebPageFormNo As Integer)
-    Public Sub OpenWebPage(ByVal WebPageFileName As String)
-        'Open a Web Page from the WebPageFileName.
-        '  Pass the ParentName Property to the new web page. The is the name of this web page that is opening the new page.
-        '  Pass the ParentWebPageFormNo Property to the new web page. This is the FormNo of this web page that is opening the new page.
-        '    A hash code is generated from the ParentName. This is used to define a file name to save and restore the Web Page settings.
-        '    The new web page can pass instructions back to the ParentWebPage using its ParentWebPageFormNo.
-
-        Dim NewFormNo As Integer = Main.OpenNewWebPage()
-
-        Main.WebPageFormList(NewFormNo).ParentWebPageFileName = FileName 'Set the Parent Web Page property.
-        Main.WebPageFormList(NewFormNo).ParentWebPageFormNo = FormNo 'Set the Parent Form Number property.
-        Main.WebPageFormList(NewFormNo).Description = ""             'The web page description can be blank.
-        Main.WebPageFormList(NewFormNo).FileDirectory = ""           'Only Web files in the Project directory can be opened from another Web Page Form.
-        Main.WebPageFormList(NewFormNo).FileLocationType = LocationTypes.Project 'Only Web files in the Project directory can be opened from another Web Page Form.
-        Main.WebPageFormList(NewFormNo).FileName = WebPageFileName  'Set the web page file name to be opened.
-        Main.WebPageFormList(NewFormNo).OpenDocument                'Open the web page file name.
-
-    End Sub
-
-    Private Sub btnEdit_Click(sender As Object, e As EventArgs) Handles btnEdit.Click
-        'Edit the html file.
-
-        Dim FileName As String
-        FileName = txtDocumentFile.Text
-
-        If FileName = "" Then
-            Main.Message.AddWarning("No page selected." & vbCrLf)
+        If XDocSettings Is Nothing Then
+            Main.Message.Add("No HTML Settings file : " & FileName & vbCrLf)
         Else
-            Dim FormNo As Integer = Main.OpenNewHtmlDisplayPage()
-            Main.HtmlDisplayFormList(FormNo).FileName = FileName
-            Main.HtmlDisplayFormList(FormNo).OpenDocument
+
+            Dim XSettings As New System.Xml.XmlDocument
+            Try
+                XSettings.LoadXml(XDocSettings.ToString)
+
+                'Run the Settings file:
+                XSeq.RunXSequence(XSettings, Status)
+            Catch ex As Exception
+                Main.Message.AddWarning("Error restoring HTML settings. " & ex.Message & vbCrLf)
+            End Try
+
         End If
     End Sub
+
+    'END Legacy Code -----------------------------------------------------------------------------------------------
 
 #End Region 'Methods Called by JavaScript -----------------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -9,7 +9,7 @@ Public Class MsgServiceCallBack
         Try
             Main.InstrReceived = message
         Catch ex As Exception
-
+            Main.Message.AddWarning("Callback message error: " & ex.Message & vbCrLf)
         End Try
 
     End Sub

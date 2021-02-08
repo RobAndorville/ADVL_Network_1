@@ -11,7 +11,7 @@ Public Class HostAppMsgServiceCallback
         Main.InstrReceived = message
     End Sub
 
-    Public Function OnSendMessageCheck() As String Implements ServiceReference1.IMsgServiceCallback.OnSendMessageCheck
-        Return "OK"
-    End Function
+    'Public Function OnSendMessageCheck() As String Implements ServiceReference1.IMsgServiceCallback.OnSendMessageCheck
+    '    Return "OK"
+    'End Function
 End Class
