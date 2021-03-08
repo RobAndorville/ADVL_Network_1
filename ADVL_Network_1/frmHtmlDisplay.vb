@@ -200,7 +200,8 @@
         SaveDocument()
         'If Main.StartPageFileName = FileName Then
         If Main.WorkflowFileName = FileName Then
-            Main.DisplayStartPage()
+            'Main.DisplayStartPage()
+            Main.DisplayWorkflow()
         End If
 
         Main.UpdateWebPage(FileName)

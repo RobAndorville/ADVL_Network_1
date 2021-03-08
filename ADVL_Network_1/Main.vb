@@ -461,6 +461,7 @@ Public Class Main
                                <Height><%= Me.Height %></Height>
                                <ShowXMessages><%= ShowXMessages %></ShowXMessages>
                                <ShowSysMessages><%= ShowSysMessages %></ShowSysMessages>
+                               <WorkFlowFileName><%= WorkflowFileName %></WorkFlowFileName>
                                <!---->
                                <SelectedTabIndex><%= TabControl1.SelectedIndex %></SelectedTabIndex>
                                <!---->
@@ -511,6 +512,8 @@ Public Class Main
 
             If Settings.<FormSettings>.<ShowXMessages>.Value <> Nothing Then ShowXMessages = Settings.<FormSettings>.<ShowXMessages>.Value
             If Settings.<FormSettings>.<ShowSysMessages>.Value <> Nothing Then ShowSysMessages = Settings.<FormSettings>.<ShowSysMessages>.Value
+
+            If Settings.<FormSettings>.<WorkFlowFileName>.Value <> Nothing Then WorkflowFileName = Settings.<FormSettings>.<WorkFlowFileName>.Value
 
             'Add code to read other saved setting here:
             If Settings.<FormSettings>.<SelectedTabIndex>.Value <> Nothing Then TabControl1.SelectedIndex = Settings.<FormSettings>.<SelectedTabIndex>.Value
@@ -1129,6 +1132,7 @@ Public Class Main
         'END   Initialise the form: ---------------------------------------------------------------
 
         RestoreFormSettings() 'Restore the form settings
+        OpenStartPage()
         Message.ShowXMessages = ShowXMessages
         Message.ShowSysMessages = ShowSysMessages
         RestoreProjectSettings() 'Restore the Project settings
@@ -1147,7 +1151,7 @@ Public Class Main
     Private Sub InitialiseForm()
         'Initialise the form for a new project.
 
-        OpenStartPage()
+        'OpenStartPage()
 
         AppTreeImageList.Images.Clear()
         'AppTreeImageList.TransparentColor = Color.White 'This sets the color to treat as transparent. The AppTree does not support transparent colors. Use white instead of transparent colors in icons.
@@ -2214,22 +2218,51 @@ Public Class Main
 #Region " Start Page Code" '=========================================================================================================================================
 
     Public Sub OpenStartPage()
-        'Open the StartPage.html file and display in the Start Page tab.
+        'Open the workflow page:
 
-        If Project.DataFileExists("StartPage.html") Then
-            'StartPageFileName = "StartPage.html"
+        If Project.DataFileExists(WorkflowFileName) Then
+            'Note: WorkflowFileName should have been restored when the application started.
+            DisplayWorkflow()
+        ElseIf Project.DataFileExists("StartPage.html") Then
             WorkflowFileName = "StartPage.html"
-            DisplayStartPage()
+            DisplayWorkflow()
         Else
             CreateStartPage()
-            'StartPageFileName = "StartPage.html"
             WorkflowFileName = "StartPage.html"
-            DisplayStartPage()
+            DisplayWorkflow()
         End If
+
+
+        ''Open the StartPage.html file and display in the Start Page tab.
+
+        'If Project.DataFileExists("StartPage.html") Then
+        '    'StartPageFileName = "StartPage.html"
+        '    WorkflowFileName = "StartPage.html"
+        '    DisplayStartPage()
+        'Else
+        '    CreateStartPage()
+        '    'StartPageFileName = "StartPage.html"
+        '    WorkflowFileName = "StartPage.html"
+        '    DisplayStartPage()
+        'End If
 
     End Sub
 
-    Public Sub DisplayStartPage()
+    'Public Sub DisplayStartPage()
+    '    'Display the StartPage.html file in the Start Page tab.
+
+    '    If Project.DataFileExists(WorkflowFileName) Then
+    '        Dim rtbData As New IO.MemoryStream
+    '        Project.ReadData(WorkflowFileName, rtbData)
+    '        rtbData.Position = 0
+    '        Dim sr As New IO.StreamReader(rtbData)
+    '        WebBrowser1.DocumentText = sr.ReadToEnd()
+    '    Else
+    '        Message.AddWarning("Web page file not found: " & WorkflowFileName & vbCrLf)
+    '    End If
+    'End Sub
+
+    Public Sub DisplayWorkflow()
         'Display the StartPage.html file in the Start Page tab.
 
         If Project.DataFileExists(WorkflowFileName) Then
@@ -2238,6 +2271,7 @@ Public Class Main
             rtbData.Position = 0
             Dim sr As New IO.StreamReader(rtbData)
             WebBrowser1.DocumentText = sr.ReadToEnd()
+            'WebBrowser2.DocumentText = sr.ReadToEnd()
         Else
             Message.AddWarning("Web page file not found: " & WorkflowFileName & vbCrLf)
         End If
@@ -5651,14 +5685,14 @@ Public Class Main
                         dgvConnections.AutoResizeRows()
                     End If
 
-           '---------------------------------------------------------------------------------------------------------------------------------------------
+                    '---------------------------------------------------------------------------------------------------------------------------------------------
 
 
            'Add an Application Info entry ---------------------------------------------------------------------------------------------------------------
                 Case "ApplicationInfo:Name"
                     'Code used to add application to the Application List: (TO BE REPLACED WITH THE APPLICATION DICTIONARY.)
                     If ApplicationNameAvailable(Data) Then
-                        AddNewApplication = True
+                        AddNewApplication = True 'Add new application to App.List
                         dgvApplications.Rows.Add()
                         Dim CurrentRow As Integer = dgvApplications.Rows.Count - 2
                         dgvApplications.Rows(CurrentRow).Cells(0).Value = Data
@@ -5668,13 +5702,14 @@ Public Class Main
 
                     Else
                         AddNewApplication = False
+                        'ApplicationNameAvailable() will also have set ApplicationNo to point to the existing entry in App.List
                     End If
                     AppName = Data
                     If AppInfo.ContainsKey(Data) Then 'The Application is already in the Application Tree.
                         AddNewApp = False
                         AppName = Data
                     Else 'Store the application information - this will be used to add an applcation node to the tree later.
-                        AddNewApp = True
+                        AddNewApp = True 'Add new application to AppInfo()
                         AppInfo.Add(Data, New clsAppInfo) 'Text, Description, ExecutablePath, 
                         AppName = Data
                     End If
@@ -5703,7 +5738,16 @@ Public Class Main
                         Dim CurrentRow As Integer = dgvApplications.Rows.Count - 2
                         'Applications grid now shows only Name and Description
                         App.List(CurrentRow).Directory = Data
+                    Else
+                        If App.List(ApplicationNo).Directory = Data Then
+                            'Directory has not been changed.
+                        Else
+                            'Directory has been changed.
+                            App.List(ApplicationNo).Directory = Data
+                            Message.Add("Application directory for " & App.List(ApplicationNo).Name & " has been changed to: " & vbCrLf & App.List(ApplicationNo).Directory & vbCrLf)
+                        End If
                     End If
+
                     If AddNewApp = True Then
                         AppInfo(AppName).Directory = Data
                     Else
@@ -6064,10 +6108,11 @@ Public Class Main
 
                     Dim ProjectPath As String = Proj.FindNameAndAppNet(ProjectName, ProNetName).Path
 
-                    'Temp code - until Project Network projects have the ProNetName added:
-                    If AppName = "ADVL_Project_Network_1" Then
-                        ProjectPath = Proj.FindNameAndAppNet(ProjectName, "").Path
-                    End If
+                    'COMMENTED OUT 16Feb2021 - These lines return a blank ProjectPath when ADVL_Project_Network_1 application opens the Share Analysis System project:
+                    ''Temp code - until Project Network projects have the ProNetName added:
+                    'If AppName = "ADVL_Project_Network_1" Then
+                    '    ProjectPath = Proj.FindNameAndAppNet(ProjectName, "").Path
+                    'End If
 
                     If ProjectPath = "" Then
                         Message.AddWarning("Project Path not found for Project: " & ProjectName & " in ProNet: " & ProNetName & vbCrLf)
