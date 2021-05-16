@@ -21,6 +21,9 @@ Imports System.ServiceModel.Description
 Imports System.Security.Permissions
 Imports System.ComponentModel
 
+Imports System.IO
+Imports System.IO.Compression
+
 <PermissionSet(SecurityAction.Demand, Name:="FullTrust")>
 <System.Runtime.InteropServices.ComVisibleAttribute(True)>
 Public Class Main
@@ -74,6 +77,10 @@ Public Class Main
 
     'Declare Forms used by the application:
     Public WithEvents WebPageList As frmWebPageList
+    Public WithEvents ProjectArchive As frmArchive 'Form used to view the files in a Project archive
+    Public WithEvents SettingsArchive As frmArchive 'Form used to view the files in a Settings archive
+    Public WithEvents DataArchive As frmArchive 'Form used to view the files in a Data archive
+    Public WithEvents SystemArchive As frmArchive 'Form used to view the files in a System archive
 
     Public WithEvents NewHtmlDisplay As frmHtmlDisplay
     Public HtmlDisplayFormList As New ArrayList 'Used for displaying multiple HtmlDisplay forms.
@@ -444,6 +451,17 @@ Public Class Main
         End Set
     End Property
 
+    Private _zipFilePath As String = "" 'The path of the zip file dragged into the View Zip Archive tab.
+    Property ZipFilePath As String
+        Get
+            Return _zipFilePath
+        End Get
+        Set(value As String)
+            _zipFilePath = value
+        End Set
+    End Property
+
+
 
 #End Region 'Properties -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -464,6 +482,7 @@ Public Class Main
                                <WorkFlowFileName><%= WorkflowFileName %></WorkFlowFileName>
                                <!---->
                                <SelectedTabIndex><%= TabControl1.SelectedIndex %></SelectedTabIndex>
+                               <ZipFilePath><%= ZipFilePath %></ZipFilePath>
                                <!---->
                                <ConnectionApplicationNameColumnWidth><%= dgvConnections.Columns(0).Width %></ConnectionApplicationNameColumnWidth>
                                <ConnectionTypeColumnWidth><%= dgvConnections.Columns(1).Width %></ConnectionTypeColumnWidth>
@@ -517,6 +536,11 @@ Public Class Main
 
             'Add code to read other saved setting here:
             If Settings.<FormSettings>.<SelectedTabIndex>.Value <> Nothing Then TabControl1.SelectedIndex = Settings.<FormSettings>.<SelectedTabIndex>.Value
+            If Settings.<FormSettings>.<ZipFilePath>.Value <> Nothing Then
+                ZipFilePath = Settings.<FormSettings>.<ZipFilePath>.Value
+                txtZipFileDir.Text = System.IO.Path.GetDirectoryName(ZipFilePath)
+                txtZipFileName.Text = System.IO.Path.GetFileName(ZipFilePath)
+            End If
 
             If Settings.<FormSettings>.<ConnectionApplicationNameColumnWidth>.Value <> Nothing Then dgvConnections.Columns(0).Width = Settings.<FormSettings>.<ConnectionApplicationNameColumnWidth>.Value
             If Settings.<FormSettings>.<ConnectionTypeColumnWidth>.Value <> Nothing Then dgvConnections.Columns(1).Width = Settings.<FormSettings>.<ConnectionTypeColumnWidth>.Value
@@ -945,11 +969,12 @@ Public Class Main
 
         'Read the Application Information file: ---------------------------------------------
         ApplicationInfo.ApplicationDir = My.Application.Info.DirectoryPath.ToString 'Set the Application Directory property
-        'Get the Application Version Information:
-        ApplicationInfo.Version.Major = My.Application.Info.Version.Major
-        ApplicationInfo.Version.Minor = My.Application.Info.Version.Minor
-        ApplicationInfo.Version.Build = My.Application.Info.Version.Build
-        ApplicationInfo.Version.Revision = My.Application.Info.Version.Revision
+        ''Get the Application Version Information:
+        'ApplicationInfo.Version.Major = My.Application.Info.Version.Major
+        'ApplicationInfo.Version.Minor = My.Application.Info.Version.Minor
+        'ApplicationInfo.Version.Build = My.Application.Info.Version.Build
+        'ApplicationInfo.Version.Revision = My.Application.Info.Version.Revision
+        'UPDATED VERSION OF THS CODE IS AT THE END OF THE METHOD.
 
         If ApplicationInfo.ApplicationLocked Then
             MessageBox.Show("The application is locked. If the application is not already in use, remove the 'Application_Info.lock file from the application directory: " & ApplicationInfo.ApplicationDir, "Notice", MessageBoxButtons.OK)
@@ -988,8 +1013,15 @@ Public Class Main
         Me.Show() 'Show this form before showing the Message form - This will show the App icon on top in the TaskBar.
 
         'Start showing messages here - Message system is set up.
-        Message.AddText("------------------- Starting Application: ADVL Message Service ---------------------- " & vbCrLf, "Heading")
-        Message.AddText("Application usage: Total duration = " & Format(ApplicationUsage.TotalDuration.TotalHours, "#.##") & " hours" & vbCrLf, "Normal")
+        'Message.AddText("------------------- Starting Application: ADVL Message Service ---------------------- " & vbCrLf, "Heading")
+        Message.AddText("-------------- Starting Application: ADVL Network / Message Service ----------------- " & vbCrLf, "Heading")
+        'Message.AddText("Application usage: Total duration = " & Format(ApplicationUsage.TotalDuration.TotalHours, "#.##") & " hours" & vbCrLf, "Normal")
+        Dim TotalDuration As String = ApplicationUsage.TotalDuration.Days.ToString.PadLeft(5, "0"c) & "d:" &
+                           ApplicationUsage.TotalDuration.Hours.ToString.PadLeft(2, "0"c) & "h:" &
+                           ApplicationUsage.TotalDuration.Minutes.ToString.PadLeft(2, "0"c) & "m:" &
+                           ApplicationUsage.TotalDuration.Seconds.ToString.PadLeft(2, "0"c) & "s"
+        Message.AddText("Application usage: Total duration = " & TotalDuration & vbCrLf, "Normal")
+
 
         'https://msdn.microsoft.com/en-us/library/z2d603cy(v=vs.80).aspx#Y550
         'Process any command line arguments:
@@ -1120,6 +1152,33 @@ Public Class Main
         dgvProjects.AutoResizeRows()
         dgvProjects.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells
 
+        'Set up DataGridView2 used to display the contents of a Zip archive:
+        'DataGridView2.ColumnCount = 4
+        'DataGridView2.ColumnCount = 5 'Adding percent column
+        DataGridView2.ColumnCount = 6 'Adding Directory column
+        DataGridView2.ColumnHeadersDefaultCellStyle.Font = New Font(DataGridView1.Font, FontStyle.Bold) 'Use bold font for the column headers
+        'DataGridView2.Columns(0).HeaderText = "File Name"
+        DataGridView2.Columns(0).HeaderText = "Directory"
+        DataGridView2.Columns(0).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft
+
+        'DataGridView2.Columns(1).HeaderText = "Directory"
+        DataGridView2.Columns(1).HeaderText = "File Name"
+        DataGridView2.Columns(1).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft
+
+        DataGridView2.Columns(2).HeaderText = "Date Modified"
+        DataGridView2.Columns(2).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft
+        DataGridView2.Columns(3).HeaderText = "Size"
+        DataGridView2.Columns(3).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+        'DataGridView2.Columns(4).HeaderText = "Compressed"
+        DataGridView2.Columns(4).HeaderText = "Compr"
+        DataGridView2.Columns(4).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+        DataGridView2.Columns(5).HeaderText = "%"
+        DataGridView2.Columns(5).DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
+        DataGridView2.Columns(5).DefaultCellStyle.Format = "N2"
+        DataGridView2.AllowUserToAddRows = False
+        DataGridView2.SelectionMode = DataGridViewSelectionMode.FullRowSelect
+        DataGridView2.AllowDrop = True
+
         bgwSendMessage.WorkerReportsProgress = True
         bgwSendMessage.WorkerSupportsCancellation = True
 
@@ -1145,6 +1204,28 @@ Public Class Main
         Message.AddText("------------------- Started OK -------------------------------------------------------------------------- " & vbCrLf & vbCrLf, "Heading")
 
         ConnectToComNet()
+
+        'Get the Application Version Information:
+        If System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed Then
+            'Application is network deployed.
+            ApplicationInfo.Version.Number = System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString
+            ApplicationInfo.Version.Major = System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion.Major
+            ApplicationInfo.Version.Minor = System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion.Minor
+            ApplicationInfo.Version.Build = System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion.Build
+            ApplicationInfo.Version.Revision = System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion.Revision
+            ApplicationInfo.Version.Source = "Publish"
+            Message.Add("Application version: " & System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString & vbCrLf)
+        Else
+            'Application is not network deployed.
+            ApplicationInfo.Version.Number = My.Application.Info.Version.ToString
+            ApplicationInfo.Version.Major = My.Application.Info.Version.Major
+            ApplicationInfo.Version.Minor = My.Application.Info.Version.Minor
+            ApplicationInfo.Version.Build = My.Application.Info.Version.Build
+            ApplicationInfo.Version.Revision = My.Application.Info.Version.Revision
+            ApplicationInfo.Version.Source = "Assembly"
+            'Message.Add("The Application is in Debug mode. The Version information may be incorrect." & vbCrLf)
+            Message.Add("Application version: " & My.Application.Info.Version.ToString & vbCrLf)
+        End If
 
     End Sub
 
@@ -1253,15 +1334,26 @@ Public Class Main
         End Select
         txtSystemLocationPath.Text = Project.SystemLocn.Path
 
-        txtTotalDuration.Text = Project.Usage.TotalDuration.Days.ToString.PadLeft(5, "0"c) & ":" &
-                                Project.Usage.TotalDuration.Hours.ToString.PadLeft(2, "0"c) & ":" &
-                                Project.Usage.TotalDuration.Minutes.ToString.PadLeft(2, "0"c) & ":" &
-                                Project.Usage.TotalDuration.Seconds.ToString.PadLeft(2, "0"c)
+        'txtTotalDuration.Text = Project.Usage.TotalDuration.Days.ToString.PadLeft(5, "0"c) & ":" &
+        '                        Project.Usage.TotalDuration.Hours.ToString.PadLeft(2, "0"c) & ":" &
+        '                        Project.Usage.TotalDuration.Minutes.ToString.PadLeft(2, "0"c) & ":" &
+        '                        Project.Usage.TotalDuration.Seconds.ToString.PadLeft(2, "0"c)
 
-        txtCurrentDuration.Text = Project.Usage.CurrentDuration.Days.ToString.PadLeft(5, "0"c) & ":" &
-                                  Project.Usage.CurrentDuration.Hours.ToString.PadLeft(2, "0"c) & ":" &
-                                  Project.Usage.CurrentDuration.Minutes.ToString.PadLeft(2, "0"c) & ":" &
-                                  Project.Usage.CurrentDuration.Seconds.ToString.PadLeft(2, "0"c)
+        'txtCurrentDuration.Text = Project.Usage.CurrentDuration.Days.ToString.PadLeft(5, "0"c) & ":" &
+        '                          Project.Usage.CurrentDuration.Hours.ToString.PadLeft(2, "0"c) & ":" &
+        '                          Project.Usage.CurrentDuration.Minutes.ToString.PadLeft(2, "0"c) & ":" &
+        '                          Project.Usage.CurrentDuration.Seconds.ToString.PadLeft(2, "0"c)
+
+        txtTotalDuration.Text = Project.Usage.TotalDuration.Days.ToString.PadLeft(5, "0"c) & "d:" &
+                        Project.Usage.TotalDuration.Hours.ToString.PadLeft(2, "0"c) & "h:" &
+                        Project.Usage.TotalDuration.Minutes.ToString.PadLeft(2, "0"c) & "m:" &
+                        Project.Usage.TotalDuration.Seconds.ToString.PadLeft(2, "0"c) & "s"
+
+        txtCurrentDuration.Text = Project.Usage.CurrentDuration.Days.ToString.PadLeft(5, "0"c) & "d:" &
+                                  Project.Usage.CurrentDuration.Hours.ToString.PadLeft(2, "0"c) & "h:" &
+                                  Project.Usage.CurrentDuration.Minutes.ToString.PadLeft(2, "0"c) & "m:" &
+                                  Project.Usage.CurrentDuration.Seconds.ToString.PadLeft(2, "0"c) & "s"
+
 
     End Sub
 
@@ -2860,28 +2952,82 @@ Public Class Main
 
     Private Sub btnOpenProject2_Click(sender As Object, e As EventArgs) Handles btnOpenProject2.Click
         If Project.Type = ADVL_Utilities_Library_1.Project.Types.Archive Then
-
+            If IsNothing(ProjectArchive) Then
+                ProjectArchive = New frmArchive
+                ProjectArchive.Show()
+                ProjectArchive.Title = "Project Archive"
+                ProjectArchive.Path = Project.Path
+            Else
+                ProjectArchive.Show()
+                ProjectArchive.BringToFront()
+            End If
         Else
             Process.Start(Project.Path)
         End If
     End Sub
 
+    Private Sub ProjectArchive_FormClosed(sender As Object, e As FormClosedEventArgs) Handles ProjectArchive.FormClosed
+        ProjectArchive = Nothing
+    End Sub
+
     Private Sub btnOpenSettings_Click(sender As Object, e As EventArgs) Handles btnOpenSettings.Click
         If Project.SettingsLocn.Type = ADVL_Utilities_Library_1.FileLocation.Types.Directory Then
             Process.Start(Project.SettingsLocn.Path)
+        ElseIf Project.SettingsLocn.Type = ADVL_Utilities_Library_1.FileLocation.Types.Archive Then
+            If IsNothing(SettingsArchive) Then
+                SettingsArchive = New frmArchive
+                SettingsArchive.Show()
+                SettingsArchive.Title = "Settings Archive"
+                SettingsArchive.Path = Project.SettingsLocn.Path
+            Else
+                SettingsArchive.Show()
+                SettingsArchive.BringToFront()
+            End If
         End If
+    End Sub
+
+    Private Sub SettingsArchive_FormClosed(sender As Object, e As FormClosedEventArgs) Handles SettingsArchive.FormClosed
+        SettingsArchive = Nothing
     End Sub
 
     Private Sub btnOpenData_Click(sender As Object, e As EventArgs) Handles btnOpenData.Click
         If Project.DataLocn.Type = ADVL_Utilities_Library_1.FileLocation.Types.Directory Then
             Process.Start(Project.DataLocn.Path)
+        ElseIf Project.DataLocn.Type = ADVL_Utilities_Library_1.FileLocation.Types.Archive Then
+            If IsNothing(DataArchive) Then
+                DataArchive = New frmArchive
+                DataArchive.Show()
+                DataArchive.Title = "Data Archive"
+                DataArchive.Path = Project.DataLocn.Path
+            Else
+                DataArchive.Show()
+                DataArchive.BringToFront()
+            End If
         End If
+    End Sub
+
+    Private Sub DataArchive_FormClosed(sender As Object, e As FormClosedEventArgs) Handles DataArchive.FormClosed
+        DataArchive = Nothing
     End Sub
 
     Private Sub btnOpenSystem_Click(sender As Object, e As EventArgs) Handles btnOpenSystem.Click
         If Project.SystemLocn.Type = ADVL_Utilities_Library_1.FileLocation.Types.Directory Then
             Process.Start(Project.SystemLocn.Path)
+        ElseIf Project.SystemLocn.Type = ADVL_Utilities_Library_1.FileLocation.Types.Archive Then
+            If IsNothing(SystemArchive) Then
+                SystemArchive = New frmArchive
+                SystemArchive.Show()
+                SystemArchive.Title = "System Archive"
+                SystemArchive.Path = Project.SystemLocn.Path
+            Else
+                SystemArchive.Show()
+                SystemArchive.BringToFront()
+            End If
         End If
+    End Sub
+
+    Private Sub SystemArchive_FormClosed(sender As Object, e As FormClosedEventArgs) Handles SystemArchive.FormClosed
+        SystemArchive = Nothing
     End Sub
 
     Private Sub btnOpenAppDir_Click(sender As Object, e As EventArgs) Handles btnOpenAppDir.Click
@@ -3581,26 +3727,35 @@ Public Class Main
             Dim StartAppProjectPath As String = txtProjPath.Text
             StartApp_ProjectPath(StartAppName, StartAppProjectPath, StartAppConnName)
         Else
-            If AppInfo.ContainsKey(AppName) Then
-                Dim ExePath As String = AppInfo(AppName).ExecutablePath
-                If System.IO.File.Exists(ExePath) Then
-                    If chkConnect2.Checked = True Then
-                        Dim decl As New XDeclaration("1.0", "utf-8", "yes")
-                        Dim ConnectDoc As New XDocument(decl, Nothing) 'Create an XDocument to store the instructions.
-                        Dim xmessage As New XElement("XMsg") 'This indicates the start of the message in the XMessage class
-                        Dim xConnName As New XElement("ConnectionName", AppName) 'Use the AppName as the Connection Name.
-                        xmessage.Add(xConnName)
-                        ConnectDoc.Add(xmessage)
-                        'Start the application with the argument string containing the instruction to connect to the ComNet
-                        Shell(Chr(34) & ExePath & Chr(34) & " " & Chr(34) & ConnectDoc.ToString & Chr(34), AppWinStyle.NormalFocus)
+            If AppName = "ADVL_Message_Service_1" Then
+                Message.AddWarning("The Message Service is already running." & vbCrLf)
+            Else
+                If AppInfo.ContainsKey(AppName) Then
+                    Dim ExePath As String = AppInfo(AppName).ExecutablePath
+                    If System.IO.File.Exists(ExePath) Then
+                        If chkConnect2.Checked = True Then
+                            Dim decl As New XDeclaration("1.0", "utf-8", "yes")
+                            Dim ConnectDoc As New XDocument(decl, Nothing) 'Create an XDocument to store the instructions.
+                            Dim xmessage As New XElement("XMsg") 'This indicates the start of the message in the XMessage class
+                            Dim xConnName As New XElement("ConnectionName", AppName) 'Use the AppName as the Connection Name.
+                            xmessage.Add(xConnName)
+                            ConnectDoc.Add(xmessage)
+                            'Start the application with the argument string containing the instruction to connect to the ComNet
+                            'Shell(Chr(34) & ExePath & Chr(34) & " " & Chr(34) & ConnectDoc.ToString & Chr(34), AppWinStyle.NormalFocus)
+                            'Updated version using Process.Start:
+                            Process.Start(ExePath, ConnectDoc.ToString)
+                            'System.Diagnostics.Process.Start
+                        Else
+                            'Shell(Chr(34) & ExePath & Chr(34), AppWinStyle.NormalFocus) 'Start the application with no argument.
+                            'Updated version using Process.Start:
+                            Process.Start(ExePath)
+                        End If
                     Else
-                        Shell(Chr(34) & ExePath & Chr(34), AppWinStyle.NormalFocus) 'Start the application with no argument.
+                        Message.AddWarning("The application: " & AppName & " executable path: " & ExePath & " was not found." & vbCrLf)
                     End If
                 Else
-                    Message.AddWarning("The application: " & AppName & " executable path: " & ExePath & " was not found." & vbCrLf)
+                    Message.AddWarning("The application: " & AppName & " was not found in the application list." & vbCrLf)
                 End If
-            Else
-                Message.AddWarning("The application: " & AppName & " was not found in the application list." & vbCrLf)
             End If
         End If
     End Sub
@@ -4105,10 +4260,15 @@ Public Class Main
     Private Sub TabPage2_Enter(sender As Object, e As EventArgs) Handles TabPage2.Enter
         'Update the current duration:
 
-        txtCurrentDuration.Text = Project.Usage.CurrentDuration.Days.ToString.PadLeft(5, "0"c) & ":" &
-                                  Project.Usage.CurrentDuration.Hours.ToString.PadLeft(2, "0"c) & ":" &
-                                  Project.Usage.CurrentDuration.Minutes.ToString.PadLeft(2, "0"c) & ":" &
-                                  Project.Usage.CurrentDuration.Seconds.ToString.PadLeft(2, "0"c)
+        'txtCurrentDuration.Text = Project.Usage.CurrentDuration.Days.ToString.PadLeft(5, "0"c) & ":" &
+        '                          Project.Usage.CurrentDuration.Hours.ToString.PadLeft(2, "0"c) & ":" &
+        '                          Project.Usage.CurrentDuration.Minutes.ToString.PadLeft(2, "0"c) & ":" &
+        '                          Project.Usage.CurrentDuration.Seconds.ToString.PadLeft(2, "0"c)
+
+        txtCurrentDuration.Text = Project.Usage.CurrentDuration.Days.ToString.PadLeft(5, "0"c) & "d:" &
+                                   Project.Usage.CurrentDuration.Hours.ToString.PadLeft(2, "0"c) & "h:" &
+                                   Project.Usage.CurrentDuration.Minutes.ToString.PadLeft(2, "0"c) & "m:" &
+                                   Project.Usage.CurrentDuration.Seconds.ToString.PadLeft(2, "0"c) & "s"
 
         Timer2.Interval = 5000 '5 seconds
         Timer2.Enabled = True
@@ -4118,10 +4278,16 @@ Public Class Main
     Private Sub Timer2_Tick(sender As Object, e As EventArgs) Handles Timer2.Tick
         'Update the current duration:
 
-        txtCurrentDuration.Text = Project.Usage.CurrentDuration.Days.ToString.PadLeft(5, "0"c) & ":" &
-                                  Project.Usage.CurrentDuration.Hours.ToString.PadLeft(2, "0"c) & ":" &
-                                  Project.Usage.CurrentDuration.Minutes.ToString.PadLeft(2, "0"c) & ":" &
-                                  Project.Usage.CurrentDuration.Seconds.ToString.PadLeft(2, "0"c)
+        'txtCurrentDuration.Text = Project.Usage.CurrentDuration.Days.ToString.PadLeft(5, "0"c) & ":" &
+        '                          Project.Usage.CurrentDuration.Hours.ToString.PadLeft(2, "0"c) & ":" &
+        '                          Project.Usage.CurrentDuration.Minutes.ToString.PadLeft(2, "0"c) & ":" &
+        '                          Project.Usage.CurrentDuration.Seconds.ToString.PadLeft(2, "0"c)
+
+        txtCurrentDuration.Text = Project.Usage.CurrentDuration.Days.ToString.PadLeft(5, "0"c) & "d:" &
+                           Project.Usage.CurrentDuration.Hours.ToString.PadLeft(2, "0"c) & "h:" &
+                           Project.Usage.CurrentDuration.Minutes.ToString.PadLeft(2, "0"c) & "m:" &
+                           Project.Usage.CurrentDuration.Seconds.ToString.PadLeft(2, "0"c) & "s"
+
     End Sub
 
     Private Sub TabPage2_Leave(sender As Object, e As EventArgs) Handles TabPage2.Leave
@@ -7412,6 +7578,348 @@ Public Class Main
         'Restart the message service
         SetUpHost()
     End Sub
+
+    Private Sub DataGridView2_DragEnter(sender As Object, e As DragEventArgs) Handles DataGridView2.DragEnter
+        'DragEnter: An object has been dragged into DataGridView2 - View Zip Archive tab.
+        'This code is required to get the link to the item(s) being dragged into XDataGridView2:
+        If e.Data.GetDataPresent(DataFormats.FileDrop) Then
+            e.Effect = DragDropEffects.Link
+        End If
+
+    End Sub
+
+    Private Sub DataGridView2_DragDrop(sender As Object, e As DragEventArgs) Handles DataGridView2.DragDrop
+        'An item has been DragDropped into the View Zip Archive tab.
+
+        Dim Path As String()
+
+        Path = e.Data.GetData(DataFormats.FileDrop)
+
+        Dim I As Integer
+
+        If Path.Count > 0 Then
+            'Open the archive file
+            DataGridView2.Rows.Clear()
+            Dim Zip As System.IO.Compression.ZipArchive
+
+            Try
+                ZipFilePath = Path(0)
+                txtZipFileDir.Text = System.IO.Path.GetDirectoryName(Path(0))
+                txtZipFileName.Text = System.IO.Path.GetFileName(Path(0))
+                'Zip = System.IO.Compression.ZipFile.OpenRead(Path(0))
+                Zip = System.IO.Compression.ZipFile.OpenRead(ZipFilePath)
+                For Each entry As System.IO.Compression.ZipArchiveEntry In Zip.Entries
+                    'DataGridView2.Rows.Add(entry.Name, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                    'DataGridView2.Rows.Add(entry.Name, entry.FullName, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                    'DataGridView2.Rows.Add(entry.FullName, entry.Name, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                    DataGridView2.Rows.Add(System.IO.Path.GetDirectoryName(entry.FullName), entry.Name, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                Next
+                Zip.Dispose()
+                DataGridView2.AutoResizeColumns()
+            Catch ex As Exception
+                Message.AddWarning("Error displaying contents of Zip archive: " & ex.Message & vbCrLf)
+            End Try
+            If Path.Count > 1 Then
+                Message.AddWarning(Path.Count & " Zip files dropped. Only the first one is shown." & vbCrLf)
+            End If
+        Else
+            Message.AddWarning("No zip file path found." & vbCrLf)
+        End If
+    End Sub
+
+    Private Sub btnCopy_Click(sender As Object, e As EventArgs) Handles btnCopy.Click
+        'Copy the selected file(s).
+
+        If DataGridView2.SelectedRows.Count > 0 Then
+
+            'Check if the Temp directory exists:
+            If System.IO.Directory.Exists(Project.Path & "\Temp") Then
+                'The Temp directory exists.
+            Else
+                'Create the Temp directory:
+                System.IO.Directory.CreateDirectory(Project.Path & "\Temp")
+            End If
+
+            If System.IO.Directory.Exists(Project.Path & "\Temp") Then
+                Dim FileName As String
+                Dim Directory As String
+                Dim ExtractDir As String = Project.Path & "\Temp"
+                Dim FileList As New System.Collections.Specialized.StringCollection
+
+                'Copy each selected file to \Temp and add the path to the file list:
+                If DataGridView2.SelectedRows.Count > 0 Then
+                    Dim Zip As System.IO.Compression.ZipArchive
+                    Zip = System.IO.Compression.ZipFile.OpenRead(ZipFilePath)
+                    For Each item As DataGridViewRow In DataGridView2.SelectedRows
+                        Directory = item.Cells(0).Value.Trim
+                        'FileName = item.Cells(0).Value
+                        FileName = item.Cells(1).Value
+                        'Dim myEntry As System.IO.Compression.ZipArchiveEntry = Zip.GetEntry(FileName)
+                        Dim myEntry As System.IO.Compression.ZipArchiveEntry
+                        If Directory = "" Then
+                            myEntry = Zip.GetEntry(FileName)
+                        Else
+                            myEntry = Zip.GetEntry(Directory & "\" & FileName)
+                        End If
+
+                        If IsNothing(myEntry) Then
+                            Message.AddWarning("This file was not found in the archive: " & FileName & vbCrLf)
+                        Else
+                            'Copy the file:
+                            myEntry.ExtractToFile(ExtractDir & "\" & FileName, True)
+                            FileList.Add(ExtractDir & "\" & FileName)
+                        End If
+                    Next
+                    Zip.Dispose()
+                    Clipboard.SetFileDropList(FileList)
+                End If
+            Else
+                Message.AddWarning("The temporary directory does not exist: " & Project.Path & "\Temp" & vbCrLf)
+            End If
+        End If
+    End Sub
+
+    Private Sub btnPaste_Click(sender As Object, e As EventArgs) Handles btnPaste.Click
+
+        Dim FileList As System.Collections.Specialized.StringCollection
+
+        If Clipboard.ContainsFileDropList Then
+            FileList = Clipboard.GetFileDropList()
+            Dim FileName As String
+            Dim ZipPath As String
+            Dim Zip As System.IO.Compression.ZipArchive
+            Zip = ZipFile.Open(ZipFilePath, ZipArchiveMode.Update)
+            For Each item In FileList
+                If System.IO.File.Exists(item) Then
+                    FileName = System.IO.Path.GetFileName(item)
+                    ZipPath = Path.Combine(txtZipDirectory.Text.Trim, FileName)
+                    'If IsNothing(Zip.GetEntry(FileName)) Then
+                    If IsNothing(Zip.GetEntry(ZipPath)) Then
+                        'Zip.CreateEntryFromFile(item, FileName)
+                        Zip.CreateEntryFromFile(item, ZipPath)
+
+                        ''Check if the item is a directory:
+                        'If File.GetAttributes(item).HasFlag(FileAttributes.Directory) Then
+                        '    CreateEntryFromAny(Zip, item, "")
+                        'Else
+                        '    Zip.CreateEntryFromFile(item, FileName)
+                        'End If
+
+                        'If System.IO.Directory.Exists(item) Then 'Create an entry from a directory:
+
+                        '    CreateEntryFromAny(Zip, item, "")
+                        'Else
+                        '    Zip.CreateEntryFromFile(item, FileName)
+                        'End If
+                    Else
+                        Message.AddWarning("A file with the same name is already in the archive: " & item & vbCrLf)
+                    End If
+                    'UPDATE:
+                    'Dim entry As ZipArchiveEntry = Zip.GetEntry(FileName)
+                    'If IsNothing(entry) Then
+
+                    'Else
+                    '    entry.Delete()
+                    'End If
+                    'Dim newEntry As ZipArchiveEntry = Zip.CreateEntry(FileName)
+
+                ElseIf System.IO.Directory.Exists(item) Then 'Create an entry from a directory:
+                    'FileName = System.IO.Path.GetFileName(item) 'The name of the directory
+                    'If IsNothing(Zip.GetEntry(FileName)) Then
+                    '    'CreateEntryFromAny(Zip, item, "")
+                    '    CreateEntry(Zip, item, "")
+                    'Else
+                    '    Message.AddWarning("A directory with the same name is already in the archive: " & item & vbCrLf)
+                    'End If
+                    CreateEntry(Zip, item, txtZipDirectory.Text.Trim) 'Paste the directory in the directory shown in txtZipDirectory
+                Else
+                    Message.AddWarning("The file or directory to paste was not found: " & item & vbCrLf)
+                End If
+            Next
+            Zip.Dispose()
+            'GetArchiveFileList()
+
+            'Update the Archive file list:
+            DataGridView2.Rows.Clear()
+            Try
+                Zip = System.IO.Compression.ZipFile.OpenRead(ZipFilePath)
+                For Each entry As System.IO.Compression.ZipArchiveEntry In Zip.Entries
+                    'DataGridView2.Rows.Add(entry.Name, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                    'DataGridView2.Rows.Add(entry.Name, entry.FullName, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                    'DataGridView2.Rows.Add(entry.FullName, entry.Name, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                    DataGridView2.Rows.Add(System.IO.Path.GetDirectoryName(entry.FullName), entry.Name, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                Next
+                Zip.Dispose()
+                DataGridView2.AutoResizeColumns()
+            Catch ex As Exception
+                Message.AddWarning("Error displaying contents of Zip archive: " & ex.Message & vbCrLf)
+            End Try
+        Else
+            Message.AddWarning("The Clipboard does not contain a file list." & vbCrLf)
+        End If
+    End Sub
+
+    'https://stackoverflow.com/questions/15133626/creating-directories-in-a-ziparchive-c-sharp-net-4-5
+
+    'Private Sub CreateEntryFromAny(ByRef myZip As ZipArchive, ByVal sourceName As String, ByVal entryName As String)
+    Private Sub CreateEntry(ByRef myZip As ZipArchive, ByVal sourceName As String, ByVal entryName As String)
+        'Create an entry in myZip from a file or a directory.
+
+        Dim FileName As String = Path.GetFileName(sourceName)
+        If File.GetAttributes(sourceName).HasFlag(FileAttributes.Directory) Then
+            CreateEntryFromDirectory(myZip, sourceName, Path.Combine(entryName, FileName))
+        Else
+            myZip.CreateEntryFromFile(sourceName, Path.Combine(entryName, FileName)) 'Example: Path.Combine("Temp", "myFile.txt") = "Temp\myFile.Text"
+        End If
+
+    End Sub
+
+    Private Sub CreateEntryFromDirectory(ByRef myZip As ZipArchive, ByVal sourceDirName As String, ByVal entryName As String)
+        'Create an entry from a directory.
+
+        Dim FileList As String() = Directory.GetFiles(sourceDirName).Concat(Directory.GetDirectories(sourceDirName)).ToArray()
+        'myZip.CreateEntry(Path.Combine(entryName, Path.GetFileName(sourceDirName)))
+        For Each fileName As String In FileList
+            'CreateEntryFromAny(myZip, fileName, entryName)
+            CreateEntry(myZip, fileName, entryName)
+        Next
+    End Sub
+
+    Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        'Delete the selected entry
+
+        If DataGridView2.SelectedRows.Count > 0 Then
+            Dim Zip As System.IO.Compression.ZipArchive
+            'Zip = System.IO.Compression.ZipFile.OpenRead(ZipFilePath)
+            Zip = System.IO.Compression.ZipFile.Open(ZipFilePath, ZipArchiveMode.Update)
+            Dim FileName As String
+            Dim Directory As String
+            Dim myEntry As System.IO.Compression.ZipArchiveEntry
+            For Each item As DataGridViewRow In DataGridView2.SelectedRows
+                Directory = item.Cells(0).Value.Trim
+                FileName = item.Cells(1).Value
+                If Directory = "" Then
+                    myEntry = Zip.GetEntry(FileName)
+                Else
+                    myEntry = Zip.GetEntry(Directory & "\" & FileName)
+                End If
+                Try
+                    myEntry.Delete()
+                Catch ex As Exception
+                    Message.AddWarning("Error deleting archive entry: " & ex.Message & vbCrLf)
+                End Try
+
+            Next
+            Zip.Dispose()
+
+            'Update the Archive file list:
+            DataGridView2.Rows.Clear()
+            Try
+                Zip = System.IO.Compression.ZipFile.OpenRead(ZipFilePath)
+                For Each entry As System.IO.Compression.ZipArchiveEntry In Zip.Entries
+                    DataGridView2.Rows.Add(System.IO.Path.GetDirectoryName(entry.FullName), entry.Name, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                Next
+                Zip.Dispose()
+                DataGridView2.AutoResizeColumns()
+            Catch ex As Exception
+                Message.AddWarning("Error displaying contents of Zip archive: " & ex.Message & vbCrLf)
+            End Try
+        End If
+    End Sub
+
+    'Private Sub DataGridView2_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles DataGridView2.CellContentClick
+
+    '    txtZipDirectory.Text = DataGridView2.Rows(e.RowIndex).Cells(0).Value
+    'End Sub
+
+
+
+    Private Sub DataGridView2_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles DataGridView2.CellClick
+        txtZipDirectory.Text = DataGridView2.Rows(e.RowIndex).Cells(0).Value
+    End Sub
+
+    Private Sub btnOpen_Click(sender As Object, e As EventArgs) Handles btnOpen.Click
+
+        Try
+            OpenFileDialog1.InitialDirectory = txtZipFileDir.Text
+            OpenFileDialog1.FileName = ZipFilePath
+            My.Computer.Keyboard.SendKeys("{HOME}") 'To show the full selected file path on OpenFileDialog1
+
+            If OpenFileDialog1.ShowDialog() = DialogResult.OK Then
+                Dim FilePath As String = OpenFileDialog1.FileName
+                txtZipFileDir.Text = System.IO.Path.GetDirectoryName(FilePath)
+                txtZipFileName.Text = System.IO.Path.GetFileName(FilePath)
+                DataGridView2.Rows.Clear()
+                Dim Zip As System.IO.Compression.ZipArchive
+                Try
+                    ZipFilePath = FilePath
+                    Zip = System.IO.Compression.ZipFile.OpenRead(ZipFilePath)
+                    For Each entry As System.IO.Compression.ZipArchiveEntry In Zip.Entries
+                        DataGridView2.Rows.Add(System.IO.Path.GetDirectoryName(entry.FullName), entry.Name, entry.LastWriteTime, entry.Length, entry.CompressedLength, entry.CompressedLength / entry.Length * 100)
+                    Next
+                    Zip.Dispose()
+                    DataGridView2.AutoResizeColumns()
+                Catch ex As Exception
+                    Message.AddWarning("Error displaying contents of Zip archive: " & ex.Message & vbCrLf)
+                End Try
+            End If
+        Catch ex As Exception
+            Message.AddWarning("Error opening an archive file: " & ex.Message & vbCrLf)
+        End Try
+    End Sub
+
+    Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+        'Close the zip file.
+        txtZipDirectory.Text = ""
+        DataGridView2.Rows.Clear()
+    End Sub
+
+    Private Sub btnSelect_Click(sender As Object, e As EventArgs) Handles btnSelect.Click
+
+        FolderBrowserDialog1.SelectedPath = txtZipFileDir.Text
+        If FolderBrowserDialog1.ShowDialog() = DialogResult.OK Then
+            txtZipFileDir.Text = FolderBrowserDialog1.SelectedPath
+        End If
+    End Sub
+
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+        'Save the Zip archive file in the specified directory with the specified file name.
+
+        Dim NewFilePath As String = System.IO.Path.Combine(txtZipFileDir.Text.Trim, txtZipFileName.Text.Trim)
+        'Message.Add("Zip archive file path: " & NewFilePath & vbCrLf)
+        If System.IO.File.Exists(NewFilePath) Then
+            Message.AddWarning("A file with this name already exists: " & NewFilePath & vbCrLf)
+        Else
+            'Copy the file at ZipFilePath to NewFilePath:
+            My.Computer.FileSystem.CopyFile(ZipFilePath, NewFilePath)
+            ZipFilePath = NewFilePath 'Set the ZipFilePath to NewFilePath
+        End If
+
+    End Sub
+
+    Private Sub btnNew_Click(sender As Object, e As EventArgs) Handles btnNew.Click
+        'Create a new Zip archive file in the specified directory with the specified file name.
+
+        Dim NewFilePath As String = System.IO.Path.Combine(txtZipFileDir.Text.Trim, txtZipFileName.Text.Trim)
+        'Message.Add("Zip archive file path: " & NewFilePath & vbCrLf)
+
+        If System.IO.File.Exists(NewFilePath) Then
+            Message.AddWarning("A file with this name already exists: " & NewFilePath & vbCrLf)
+        Else
+            Try
+                txtZipDirectory.Text = ""
+                DataGridView2.Rows.Clear()
+                Dim Zip As System.IO.Compression.ZipArchive
+                Zip = System.IO.Compression.ZipFile.Open(NewFilePath, ZipArchiveMode.Create)
+                ZipFilePath = NewFilePath 'Set the ZipFilePath to NewFilePath
+                Zip.Dispose()
+            Catch ex As Exception
+                Message.AddWarning("Error creating Zip archive file: " & ex.Message & vbCrLf)
+            End Try
+        End If
+
+    End Sub
+
 
 
 #End Region 'Form Methods ---------------------------------------------------------------------------------------------------------------------------------------------------------------------

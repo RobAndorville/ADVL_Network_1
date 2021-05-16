@@ -24,8 +24,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>19</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationRevision>23</ApplicationRevision>
+    <ApplicationVersion>1.0.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -89,6 +89,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
@@ -113,6 +115,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsConnection.vb" />
+    <Compile Include="frmArchive.Designer.vb">
+      <DependentUpon>frmArchive.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmArchive.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmConnectionTools.Designer.vb">
       <DependentUpon>frmConnectionTools.vb</DependentUpon>
     </Compile>
@@ -170,6 +178,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="frmArchive.resx">
+      <DependentUpon>frmArchive.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmConnectionTools.resx">
       <DependentUpon>frmConnectionTools.vb</DependentUpon>
     </EmbeddedResource>

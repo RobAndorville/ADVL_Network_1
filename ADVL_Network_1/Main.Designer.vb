@@ -176,12 +176,26 @@ Partial Class Main
         Me.Label38 = New System.Windows.Forms.Label()
         Me.Label37 = New System.Windows.Forms.Label()
         Me.XmlHtmDisplay2 = New ADVL_Utilities_Library_1.XmlHtmDisplay(Me.components)
+        Me.TabPage13 = New System.Windows.Forms.TabPage()
+        Me.btnClose = New System.Windows.Forms.Button()
+        Me.btnSelect = New System.Windows.Forms.Button()
+        Me.btnNew = New System.Windows.Forms.Button()
+        Me.btnSave = New System.Windows.Forms.Button()
+        Me.btnOpen = New System.Windows.Forms.Button()
+        Me.txtZipFileName = New System.Windows.Forms.TextBox()
+        Me.Label41 = New System.Windows.Forms.Label()
+        Me.txtZipFileDir = New System.Windows.Forms.TextBox()
+        Me.Label40 = New System.Windows.Forms.Label()
+        Me.txtZipDirectory = New System.Windows.Forms.TextBox()
+        Me.Label36 = New System.Windows.Forms.Label()
+        Me.btnDelete = New System.Windows.Forms.Button()
+        Me.btnPaste = New System.Windows.Forms.Button()
+        Me.btnCopy = New System.Windows.Forms.Button()
+        Me.DataGridView2 = New System.Windows.Forms.DataGridView()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
         Me.btnOpenProject2 = New System.Windows.Forms.Button()
         Me.Label28 = New System.Windows.Forms.Label()
         Me.txtProjectPath2 = New System.Windows.Forms.TextBox()
-        Me.Label8 = New System.Windows.Forms.Label()
-        Me.Label6 = New System.Windows.Forms.Label()
         Me.btnOpenAppDir = New System.Windows.Forms.Button()
         Me.btnOpenSystem = New System.Windows.Forms.Button()
         Me.btnOpenData = New System.Windows.Forms.Button()
@@ -219,6 +233,8 @@ Partial Class Main
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.btnAndorville = New System.Windows.Forms.Button()
         Me.Timer4 = New System.Windows.Forms.Timer(Me.components)
+        Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
+        Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
         Me.TabControl1.SuspendLayout()
         Me.TabPage3.SuspendLayout()
         Me.TabPage1.SuspendLayout()
@@ -245,6 +261,8 @@ Partial Class Main
         Me.TabPage10.SuspendLayout()
         Me.TabPage7.SuspendLayout()
         Me.TabPage8.SuspendLayout()
+        Me.TabPage13.SuspendLayout()
+        CType(Me.DataGridView2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TabPage2.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -291,6 +309,7 @@ Partial Class Main
         Me.TabControl1.Controls.Add(Me.TabPage9)
         Me.TabControl1.Controls.Add(Me.TabPage7)
         Me.TabControl1.Controls.Add(Me.TabPage8)
+        Me.TabControl1.Controls.Add(Me.TabPage13)
         Me.TabControl1.Controls.Add(Me.TabPage2)
         Me.TabControl1.Location = New System.Drawing.Point(12, 40)
         Me.TabControl1.Name = "TabControl1"
@@ -1574,7 +1593,7 @@ Partial Class Main
         TextSettings15.PointSize = 10.0!
         XmlHtmDisplaySettings1.XValue = TextSettings15
         Me.XmlHtmDisplay1.Settings = XmlHtmDisplaySettings1
-        Me.XmlHtmDisplay1.Size = New System.Drawing.Size(894, 539)
+        Me.XmlHtmDisplay1.Size = New System.Drawing.Size(934, 539)
         Me.XmlHtmDisplay1.TabIndex = 0
         Me.XmlHtmDisplay1.Text = ""
         '
@@ -1765,17 +1784,178 @@ Partial Class Main
         TextSettings30.PointSize = 10.0!
         XmlHtmDisplaySettings2.XValue = TextSettings30
         Me.XmlHtmDisplay2.Settings = XmlHtmDisplaySettings2
-        Me.XmlHtmDisplay2.Size = New System.Drawing.Size(894, 539)
+        Me.XmlHtmDisplay2.Size = New System.Drawing.Size(934, 539)
         Me.XmlHtmDisplay2.TabIndex = 1
         Me.XmlHtmDisplay2.Text = ""
+        '
+        'TabPage13
+        '
+        Me.TabPage13.Controls.Add(Me.btnClose)
+        Me.TabPage13.Controls.Add(Me.btnSelect)
+        Me.TabPage13.Controls.Add(Me.btnNew)
+        Me.TabPage13.Controls.Add(Me.btnSave)
+        Me.TabPage13.Controls.Add(Me.btnOpen)
+        Me.TabPage13.Controls.Add(Me.txtZipFileName)
+        Me.TabPage13.Controls.Add(Me.Label41)
+        Me.TabPage13.Controls.Add(Me.txtZipFileDir)
+        Me.TabPage13.Controls.Add(Me.Label40)
+        Me.TabPage13.Controls.Add(Me.txtZipDirectory)
+        Me.TabPage13.Controls.Add(Me.Label36)
+        Me.TabPage13.Controls.Add(Me.btnDelete)
+        Me.TabPage13.Controls.Add(Me.btnPaste)
+        Me.TabPage13.Controls.Add(Me.btnCopy)
+        Me.TabPage13.Controls.Add(Me.DataGridView2)
+        Me.TabPage13.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage13.Name = "TabPage13"
+        Me.TabPage13.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage13.TabIndex = 9
+        Me.TabPage13.Text = "View Zip Archive"
+        Me.TabPage13.UseVisualStyleBackColor = True
+        '
+        'btnClose
+        '
+        Me.btnClose.Location = New System.Drawing.Point(718, 31)
+        Me.btnClose.Name = "btnClose"
+        Me.btnClose.Size = New System.Drawing.Size(53, 22)
+        Me.btnClose.TabIndex = 27
+        Me.btnClose.Text = "Close"
+        Me.ToolTip1.SetToolTip(Me.btnClose, "Open a zip file")
+        Me.btnClose.UseVisualStyleBackColor = True
+        '
+        'btnSelect
+        '
+        Me.btnSelect.Location = New System.Drawing.Point(347, 3)
+        Me.btnSelect.Name = "btnSelect"
+        Me.btnSelect.Size = New System.Drawing.Size(53, 22)
+        Me.btnSelect.TabIndex = 26
+        Me.btnSelect.Text = "Select"
+        Me.ToolTip1.SetToolTip(Me.btnSelect, "Select the Zip file directory")
+        Me.btnSelect.UseVisualStyleBackColor = True
+        '
+        'btnNew
+        '
+        Me.btnNew.Location = New System.Drawing.Point(836, 3)
+        Me.btnNew.Name = "btnNew"
+        Me.btnNew.Size = New System.Drawing.Size(53, 22)
+        Me.btnNew.TabIndex = 25
+        Me.btnNew.Text = "New"
+        Me.ToolTip1.SetToolTip(Me.btnNew, "Create a new Zip file in the specified directory with the specified file name")
+        Me.btnNew.UseVisualStyleBackColor = True
+        '
+        'btnSave
+        '
+        Me.btnSave.Location = New System.Drawing.Point(777, 3)
+        Me.btnSave.Name = "btnSave"
+        Me.btnSave.Size = New System.Drawing.Size(53, 22)
+        Me.btnSave.TabIndex = 24
+        Me.btnSave.Text = "Save"
+        Me.ToolTip1.SetToolTip(Me.btnSave, "Save the Zip file in the specified directory with the specified file name")
+        Me.btnSave.UseVisualStyleBackColor = True
+        '
+        'btnOpen
+        '
+        Me.btnOpen.Location = New System.Drawing.Point(718, 3)
+        Me.btnOpen.Name = "btnOpen"
+        Me.btnOpen.Size = New System.Drawing.Size(53, 22)
+        Me.btnOpen.TabIndex = 23
+        Me.btnOpen.Text = "Open"
+        Me.ToolTip1.SetToolTip(Me.btnOpen, "Open a zip file")
+        Me.btnOpen.UseVisualStyleBackColor = True
+        '
+        'txtZipFileName
+        '
+        Me.txtZipFileName.Location = New System.Drawing.Point(469, 5)
+        Me.txtZipFileName.Name = "txtZipFileName"
+        Me.txtZipFileName.Size = New System.Drawing.Size(243, 20)
+        Me.txtZipFileName.TabIndex = 22
+        '
+        'Label41
+        '
+        Me.Label41.AutoSize = True
+        Me.Label41.Location = New System.Drawing.Point(406, 8)
+        Me.Label41.Name = "Label41"
+        Me.Label41.Size = New System.Drawing.Size(57, 13)
+        Me.Label41.TabIndex = 21
+        Me.Label41.Text = "File Name:"
+        '
+        'txtZipFileDir
+        '
+        Me.txtZipFileDir.Location = New System.Drawing.Point(98, 5)
+        Me.txtZipFileDir.Name = "txtZipFileDir"
+        Me.txtZipFileDir.Size = New System.Drawing.Size(243, 20)
+        Me.txtZipFileDir.TabIndex = 20
+        '
+        'Label40
+        '
+        Me.Label40.AutoSize = True
+        Me.Label40.Location = New System.Drawing.Point(3, 8)
+        Me.Label40.Name = "Label40"
+        Me.Label40.Size = New System.Drawing.Size(89, 13)
+        Me.Label40.TabIndex = 19
+        Me.Label40.Text = "Zip File Directory:"
+        '
+        'txtZipDirectory
+        '
+        Me.txtZipDirectory.Location = New System.Drawing.Point(288, 33)
+        Me.txtZipDirectory.Name = "txtZipDirectory"
+        Me.txtZipDirectory.Size = New System.Drawing.Size(243, 20)
+        Me.txtZipDirectory.TabIndex = 18
+        '
+        'Label36
+        '
+        Me.Label36.AutoSize = True
+        Me.Label36.Location = New System.Drawing.Point(183, 36)
+        Me.Label36.Name = "Label36"
+        Me.Label36.Size = New System.Drawing.Size(99, 13)
+        Me.Label36.TabIndex = 17
+        Me.Label36.Text = "Directory in Archive"
+        '
+        'btnDelete
+        '
+        Me.btnDelete.Location = New System.Drawing.Point(65, 31)
+        Me.btnDelete.Name = "btnDelete"
+        Me.btnDelete.Size = New System.Drawing.Size(53, 22)
+        Me.btnDelete.TabIndex = 16
+        Me.btnDelete.Text = "Delete"
+        Me.ToolTip1.SetToolTip(Me.btnDelete, "Delete the selected file(s)")
+        Me.btnDelete.UseVisualStyleBackColor = True
+        '
+        'btnPaste
+        '
+        Me.btnPaste.Location = New System.Drawing.Point(124, 31)
+        Me.btnPaste.Name = "btnPaste"
+        Me.btnPaste.Size = New System.Drawing.Size(53, 22)
+        Me.btnPaste.TabIndex = 15
+        Me.btnPaste.Text = "Paste"
+        Me.ToolTip1.SetToolTip(Me.btnPaste, "Paste the selected file(s) in the selected Archive directory")
+        Me.btnPaste.UseVisualStyleBackColor = True
+        '
+        'btnCopy
+        '
+        Me.btnCopy.Location = New System.Drawing.Point(6, 31)
+        Me.btnCopy.Name = "btnCopy"
+        Me.btnCopy.Size = New System.Drawing.Size(53, 22)
+        Me.btnCopy.TabIndex = 14
+        Me.btnCopy.Text = "Copy"
+        Me.ToolTip1.SetToolTip(Me.btnCopy, "Copy the selected file(s)")
+        Me.btnCopy.UseVisualStyleBackColor = True
+        '
+        'DataGridView2
+        '
+        Me.DataGridView2.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.DataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.DataGridView2.Location = New System.Drawing.Point(3, 59)
+        Me.DataGridView2.Name = "DataGridView2"
+        Me.DataGridView2.Size = New System.Drawing.Size(934, 500)
+        Me.DataGridView2.TabIndex = 10
         '
         'TabPage2
         '
         Me.TabPage2.Controls.Add(Me.btnOpenProject2)
         Me.TabPage2.Controls.Add(Me.Label28)
         Me.TabPage2.Controls.Add(Me.txtProjectPath2)
-        Me.TabPage2.Controls.Add(Me.Label8)
-        Me.TabPage2.Controls.Add(Me.Label6)
         Me.TabPage2.Controls.Add(Me.btnOpenAppDir)
         Me.TabPage2.Controls.Add(Me.btnOpenSystem)
         Me.TabPage2.Controls.Add(Me.btnOpenData)
@@ -1838,26 +2018,8 @@ Partial Class Main
         Me.txtProjectPath2.Location = New System.Drawing.Point(138, 135)
         Me.txtProjectPath2.Multiline = True
         Me.txtProjectPath2.Name = "txtProjectPath2"
-        Me.txtProjectPath2.Size = New System.Drawing.Size(756, 46)
+        Me.txtProjectPath2.Size = New System.Drawing.Size(796, 46)
         Me.txtProjectPath2.TabIndex = 303
-        '
-        'Label8
-        '
-        Me.Label8.AutoSize = True
-        Me.Label8.Location = New System.Drawing.Point(570, 348)
-        Me.Label8.Name = "Label8"
-        Me.Label8.Size = New System.Drawing.Size(41, 13)
-        Me.Label8.TabIndex = 300
-        Me.Label8.Text = "d:h:m:s"
-        '
-        'Label6
-        '
-        Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(378, 348)
-        Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(41, 13)
-        Me.Label6.TabIndex = 299
-        Me.Label6.Text = "d:h:m:s"
         '
         'btnOpenAppDir
         '
@@ -1927,14 +2089,14 @@ Partial Class Main
         Me.txtSystemLocationPath.Location = New System.Drawing.Point(138, 291)
         Me.txtSystemLocationPath.Multiline = True
         Me.txtSystemLocationPath.Name = "txtSystemLocationPath"
-        Me.txtSystemLocationPath.Size = New System.Drawing.Size(756, 46)
+        Me.txtSystemLocationPath.Size = New System.Drawing.Size(796, 46)
         Me.txtSystemLocationPath.TabIndex = 110
         '
         'txtCurrentDuration
         '
         Me.txtCurrentDuration.Location = New System.Drawing.Point(479, 343)
         Me.txtCurrentDuration.Name = "txtCurrentDuration"
-        Me.txtCurrentDuration.Size = New System.Drawing.Size(85, 20)
+        Me.txtCurrentDuration.Size = New System.Drawing.Size(120, 20)
         Me.txtCurrentDuration.TabIndex = 108
         '
         'Label29
@@ -1950,7 +2112,7 @@ Partial Class Main
         '
         Me.txtTotalDuration.Location = New System.Drawing.Point(287, 343)
         Me.txtTotalDuration.Name = "txtTotalDuration"
-        Me.txtTotalDuration.Size = New System.Drawing.Size(85, 20)
+        Me.txtTotalDuration.Size = New System.Drawing.Size(120, 20)
         Me.txtTotalDuration.TabIndex = 105
         '
         'Label30
@@ -2019,7 +2181,7 @@ Partial Class Main
         Me.txtDataLocationPath.Location = New System.Drawing.Point(138, 239)
         Me.txtDataLocationPath.Multiline = True
         Me.txtDataLocationPath.Name = "txtDataLocationPath"
-        Me.txtDataLocationPath.Size = New System.Drawing.Size(756, 46)
+        Me.txtDataLocationPath.Size = New System.Drawing.Size(796, 46)
         Me.txtDataLocationPath.TabIndex = 97
         '
         'txtDataLocationType
@@ -2045,7 +2207,7 @@ Partial Class Main
         Me.txtSettingsLocationPath.Location = New System.Drawing.Point(138, 187)
         Me.txtSettingsLocationPath.Multiline = True
         Me.txtSettingsLocationPath.Name = "txtSettingsLocationPath"
-        Me.txtSettingsLocationPath.Size = New System.Drawing.Size(756, 46)
+        Me.txtSettingsLocationPath.Size = New System.Drawing.Size(796, 46)
         Me.txtSettingsLocationPath.TabIndex = 93
         '
         'Label7
@@ -2078,7 +2240,7 @@ Partial Class Main
         Me.txtProjectDescription.Location = New System.Drawing.Point(123, 62)
         Me.txtProjectDescription.Multiline = True
         Me.txtProjectDescription.Name = "txtProjectDescription"
-        Me.txtProjectDescription.Size = New System.Drawing.Size(771, 40)
+        Me.txtProjectDescription.Size = New System.Drawing.Size(811, 40)
         Me.txtProjectDescription.TabIndex = 87
         '
         'Label4
@@ -2096,7 +2258,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtProjectName.Location = New System.Drawing.Point(123, 36)
         Me.txtProjectName.Name = "txtProjectName"
-        Me.txtProjectName.Size = New System.Drawing.Size(771, 20)
+        Me.txtProjectName.Size = New System.Drawing.Size(811, 20)
         Me.txtProjectName.TabIndex = 85
         '
         'Label3
@@ -2158,6 +2320,10 @@ Partial Class Main
         'Timer4
         '
         '
+        'OpenFileDialog1
+        '
+        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -2208,6 +2374,9 @@ Partial Class Main
         Me.TabPage7.PerformLayout()
         Me.TabPage8.ResumeLayout(False)
         Me.TabPage8.PerformLayout()
+        Me.TabPage13.ResumeLayout(False)
+        Me.TabPage13.PerformLayout()
+        CType(Me.DataGridView2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TabPage2.ResumeLayout(False)
         Me.TabPage2.PerformLayout()
         Me.ResumeLayout(False)
@@ -2326,8 +2495,6 @@ Partial Class Main
     Friend WithEvents btnOpenSystem As Button
     Friend WithEvents btnOpenData As Button
     Friend WithEvents btnOpenSettings As Button
-    Friend WithEvents Label8 As Label
-    Friend WithEvents Label6 As Label
     Friend WithEvents Timer2 As Timer
     Friend WithEvents Label26 As Label
     Friend WithEvents ToolTip1 As ToolTip
@@ -2377,4 +2544,22 @@ Partial Class Main
     Friend WithEvents Button1 As Button
     Friend WithEvents DataGridView1 As DataGridView
     Friend WithEvents btnConnectionTools As Button
+    Friend WithEvents TabPage13 As TabPage
+    Friend WithEvents btnPaste As Button
+    Friend WithEvents btnCopy As Button
+    Friend WithEvents DataGridView2 As DataGridView
+    Friend WithEvents btnDelete As Button
+    Friend WithEvents txtZipDirectory As TextBox
+    Friend WithEvents Label36 As Label
+    Friend WithEvents btnNew As Button
+    Friend WithEvents btnSave As Button
+    Friend WithEvents btnOpen As Button
+    Friend WithEvents txtZipFileName As TextBox
+    Friend WithEvents Label41 As Label
+    Friend WithEvents txtZipFileDir As TextBox
+    Friend WithEvents Label40 As Label
+    Friend WithEvents OpenFileDialog1 As OpenFileDialog
+    Friend WithEvents btnSelect As Button
+    Friend WithEvents FolderBrowserDialog1 As FolderBrowserDialog
+    Friend WithEvents btnClose As Button
 End Class
