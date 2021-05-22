@@ -37,7 +37,7 @@ The setup zip file is listed under **Assets**.
 Unzip the directory: ADVL_Network_1_0_1_22  
 The setup files are contained in this directory.  
 
-Before running setup, the following URL must be reserved for the Message Service that is started when the Network software is run:  http://+:8733/ADVLService/
+Before running setup, the following URL must be reserved for the Message Service that is started when the Network software is run:  http://+:8734/ADVLService/
 
 After the URL has been reserved, run the setup.exe file to install the Andorville™ Network software.
 
@@ -49,7 +49,7 @@ If successful, this message will be shown: URL reservation successfully added
 
 #### Delete a URL Reservation
 To delete a URL reservation enter the command in the PowerShell:  
-netsh http delete urlacl url=http://+:8733/ADVLService  
+netsh http delete urlacl url=http://+:8734/ADVLService  
 If successful, this message will be shown: URL reservation successfully deleted
 
 #### Display a List of Active Connections
