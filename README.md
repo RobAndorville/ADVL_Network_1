@@ -25,6 +25,9 @@ limitations under the License.
 
 The Andorville™ Network software is used by Andorville™ application cells to exchange information. The Network shows a list of available application cells and projects and a list of projects that are currently connected.
 
+For a description of the Network software, visit: http://www.andorville.com.au/AndorvilleNetwork.html  
+For a description of the Andorville™ Multi-Cellular Software System, visit: http://www.andorville.com.au/index.html
+
 #### Installation Notes
 
 The setup files are contained in the zip file: Setup_ADVL_Network_1_0_1_22.Zip  
