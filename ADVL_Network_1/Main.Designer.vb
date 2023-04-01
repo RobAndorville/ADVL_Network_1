@@ -166,6 +166,8 @@ Partial Class Main
         Me.rtbIpList = New System.Windows.Forms.RichTextBox()
         Me.TabPage11 = New System.Windows.Forms.TabPage()
         Me.TabPage7 = New System.Windows.Forms.TabPage()
+        Me.btnCopyHtmlMarkup = New System.Windows.Forms.Button()
+        Me.btnPasteXml = New System.Windows.Forms.Button()
         Me.Label26 = New System.Windows.Forms.Label()
         Me.Label34 = New System.Windows.Forms.Label()
         Me.chkWrapText = New System.Windows.Forms.CheckBox()
@@ -269,7 +271,7 @@ Partial Class Main
         'btnExit
         '
         Me.btnExit.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnExit.Location = New System.Drawing.Point(912, 12)
+        Me.btnExit.Location = New System.Drawing.Point(913, 12)
         Me.btnExit.Name = "btnExit"
         Me.btnExit.Size = New System.Drawing.Size(48, 22)
         Me.btnExit.TabIndex = 8
@@ -279,7 +281,7 @@ Partial Class Main
         'btnMessages
         '
         Me.btnMessages.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnMessages.Location = New System.Drawing.Point(834, 12)
+        Me.btnMessages.Location = New System.Drawing.Point(835, 12)
         Me.btnMessages.Name = "btnMessages"
         Me.btnMessages.Size = New System.Drawing.Size(72, 22)
         Me.btnMessages.TabIndex = 51
@@ -289,7 +291,7 @@ Partial Class Main
         'btnAppInfo
         '
         Me.btnAppInfo.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnAppInfo.Location = New System.Drawing.Point(733, 12)
+        Me.btnAppInfo.Location = New System.Drawing.Point(734, 12)
         Me.btnAppInfo.Name = "btnAppInfo"
         Me.btnAppInfo.Size = New System.Drawing.Size(95, 22)
         Me.btnAppInfo.TabIndex = 52
@@ -314,7 +316,7 @@ Partial Class Main
         Me.TabControl1.Location = New System.Drawing.Point(12, 40)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(948, 588)
+        Me.TabControl1.Size = New System.Drawing.Size(949, 611)
         Me.TabControl1.TabIndex = 53
         '
         'TabPage3
@@ -322,7 +324,7 @@ Partial Class Main
         Me.TabPage3.Controls.Add(Me.WebBrowser1)
         Me.TabPage3.Location = New System.Drawing.Point(4, 22)
         Me.TabPage3.Name = "TabPage3"
-        Me.TabPage3.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage3.Size = New System.Drawing.Size(940, 585)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "Workflow"
         Me.TabPage3.UseVisualStyleBackColor = True
@@ -335,7 +337,7 @@ Partial Class Main
         Me.WebBrowser1.Location = New System.Drawing.Point(3, 3)
         Me.WebBrowser1.MinimumSize = New System.Drawing.Size(20, 20)
         Me.WebBrowser1.Name = "WebBrowser1"
-        Me.WebBrowser1.Size = New System.Drawing.Size(934, 556)
+        Me.WebBrowser1.Size = New System.Drawing.Size(934, 579)
         Me.WebBrowser1.TabIndex = 68
         '
         'TabPage1
@@ -353,7 +355,7 @@ Partial Class Main
         Me.TabPage1.Location = New System.Drawing.Point(4, 22)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage1.Size = New System.Drawing.Size(940, 585)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "Connections"
         Me.TabPage1.UseVisualStyleBackColor = True
@@ -475,7 +477,7 @@ Partial Class Main
         Me.dgvConnections.Location = New System.Drawing.Point(6, 34)
         Me.dgvConnections.Name = "dgvConnections"
         Me.dgvConnections.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvConnections.Size = New System.Drawing.Size(928, 522)
+        Me.dgvConnections.Size = New System.Drawing.Size(928, 545)
         Me.dgvConnections.TabIndex = 2
         '
         'TabPage4
@@ -483,7 +485,7 @@ Partial Class Main
         Me.TabPage4.Controls.Add(Me.SplitContainer1)
         Me.TabPage4.Location = New System.Drawing.Point(4, 22)
         Me.TabPage4.Name = "TabPage4"
-        Me.TabPage4.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage4.Size = New System.Drawing.Size(940, 585)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "Application Tree"
         Me.TabPage4.UseVisualStyleBackColor = True
@@ -526,8 +528,8 @@ Partial Class Main
         Me.SplitContainer1.Panel2.Controls.Add(Me.Label27)
         Me.SplitContainer1.Panel2.Controls.Add(Me.txtNodeKey)
         Me.SplitContainer1.Panel2.Controls.Add(Me.Label22)
-        Me.SplitContainer1.Size = New System.Drawing.Size(900, 579)
-        Me.SplitContainer1.SplitterDistance = 350
+        Me.SplitContainer1.Size = New System.Drawing.Size(934, 579)
+        Me.SplitContainer1.SplitterDistance = 363
         Me.SplitContainer1.TabIndex = 2
         '
         'trvAppTree
@@ -540,7 +542,7 @@ Partial Class Main
         Me.trvAppTree.ItemHeight = 36
         Me.trvAppTree.Location = New System.Drawing.Point(3, 3)
         Me.trvAppTree.Name = "trvAppTree"
-        Me.trvAppTree.Size = New System.Drawing.Size(344, 573)
+        Me.trvAppTree.Size = New System.Drawing.Size(357, 573)
         Me.trvAppTree.TabIndex = 0
         '
         'ContextMenuStrip1
@@ -660,7 +662,7 @@ Partial Class Main
         Me.GroupBox2.Controls.Add(Me.Label17)
         Me.GroupBox2.Location = New System.Drawing.Point(7, 262)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(536, 254)
+        Me.GroupBox2.Size = New System.Drawing.Size(557, 254)
         Me.GroupBox2.TabIndex = 270
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Project:"
@@ -680,13 +682,13 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtRelativePath.Location = New System.Drawing.Point(118, 223)
         Me.txtRelativePath.Name = "txtRelativePath"
-        Me.txtRelativePath.Size = New System.Drawing.Size(412, 20)
+        Me.txtRelativePath.Size = New System.Drawing.Size(433, 20)
         Me.txtRelativePath.TabIndex = 290
         '
         'btnAddToProjTree
         '
         Me.btnAddToProjTree.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnAddToProjTree.Location = New System.Drawing.Point(420, 195)
+        Me.btnAddToProjTree.Location = New System.Drawing.Point(441, 195)
         Me.btnAddToProjTree.Name = "btnAddToProjTree"
         Me.btnAddToProjTree.Size = New System.Drawing.Size(107, 22)
         Me.btnAddToProjTree.TabIndex = 289
@@ -708,7 +710,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtProjID.Location = New System.Drawing.Point(183, 41)
         Me.txtProjID.Name = "txtProjID"
-        Me.txtProjID.Size = New System.Drawing.Size(347, 20)
+        Me.txtProjID.Size = New System.Drawing.Size(368, 20)
         Me.txtProjID.TabIndex = 287
         '
         'Label21
@@ -726,7 +728,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtParentProjectID.Location = New System.Drawing.Point(118, 195)
         Me.txtParentProjectID.Name = "txtParentProjectID"
-        Me.txtParentProjectID.Size = New System.Drawing.Size(296, 20)
+        Me.txtParentProjectID.Size = New System.Drawing.Size(317, 20)
         Me.txtParentProjectID.TabIndex = 285
         '
         'Label24
@@ -744,7 +746,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtApplicationName.Location = New System.Drawing.Point(118, 143)
         Me.txtApplicationName.Name = "txtApplicationName"
-        Me.txtApplicationName.Size = New System.Drawing.Size(412, 20)
+        Me.txtApplicationName.Size = New System.Drawing.Size(433, 20)
         Me.txtApplicationName.TabIndex = 283
         '
         'Label20
@@ -762,7 +764,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtParentProjectName.Location = New System.Drawing.Point(118, 169)
         Me.txtParentProjectName.Name = "txtParentProjectName"
-        Me.txtParentProjectName.Size = New System.Drawing.Size(412, 20)
+        Me.txtParentProjectName.Size = New System.Drawing.Size(433, 20)
         Me.txtParentProjectName.TabIndex = 277
         '
         'txtProjPath
@@ -772,7 +774,7 @@ Partial Class Main
         Me.txtProjPath.Location = New System.Drawing.Point(50, 67)
         Me.txtProjPath.Multiline = True
         Me.txtProjPath.Name = "txtProjPath"
-        Me.txtProjPath.Size = New System.Drawing.Size(480, 70)
+        Me.txtProjPath.Size = New System.Drawing.Size(501, 70)
         Me.txtProjPath.TabIndex = 276
         '
         'Label19
@@ -806,7 +808,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtProjName.Location = New System.Drawing.Point(50, 15)
         Me.txtProjName.Name = "txtProjName"
-        Me.txtProjName.Size = New System.Drawing.Size(480, 20)
+        Me.txtProjName.Size = New System.Drawing.Size(501, 20)
         Me.txtProjName.TabIndex = 272
         '
         'Label17
@@ -829,7 +831,7 @@ Partial Class Main
         Me.GroupBox1.Controls.Add(Me.Label15)
         Me.GroupBox1.Location = New System.Drawing.Point(86, 122)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(457, 134)
+        Me.GroupBox1.Size = New System.Drawing.Size(478, 134)
         Me.GroupBox1.TabIndex = 269
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Application:"
@@ -850,7 +852,7 @@ Partial Class Main
         Me.txtAppDirectory.Location = New System.Drawing.Point(72, 74)
         Me.txtAppDirectory.Multiline = True
         Me.txtAppDirectory.Name = "txtAppDirectory"
-        Me.txtAppDirectory.Size = New System.Drawing.Size(376, 52)
+        Me.txtAppDirectory.Size = New System.Drawing.Size(397, 52)
         Me.txtAppDirectory.TabIndex = 271
         '
         'Label16
@@ -869,7 +871,7 @@ Partial Class Main
         Me.txtExePath2.Location = New System.Drawing.Point(71, 16)
         Me.txtExePath2.Multiline = True
         Me.txtExePath2.Name = "txtExePath2"
-        Me.txtExePath2.Size = New System.Drawing.Size(377, 52)
+        Me.txtExePath2.Size = New System.Drawing.Size(398, 52)
         Me.txtExePath2.TabIndex = 269
         '
         'Label15
@@ -961,7 +963,7 @@ Partial Class Main
         Me.txtItemDescription.Location = New System.Drawing.Point(72, 31)
         Me.txtItemDescription.Multiline = True
         Me.txtItemDescription.Name = "txtItemDescription"
-        Me.txtItemDescription.Size = New System.Drawing.Size(462, 45)
+        Me.txtItemDescription.Size = New System.Drawing.Size(483, 45)
         Me.txtItemDescription.TabIndex = 259
         '
         'Label27
@@ -979,7 +981,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtNodeKey.Location = New System.Drawing.Point(72, 5)
         Me.txtNodeKey.Name = "txtNodeKey"
-        Me.txtNodeKey.Size = New System.Drawing.Size(462, 20)
+        Me.txtNodeKey.Size = New System.Drawing.Size(483, 20)
         Me.txtNodeKey.TabIndex = 257
         '
         'Label22
@@ -1003,7 +1005,7 @@ Partial Class Main
         Me.TabPage5.Controls.Add(Me.btnStartApp)
         Me.TabPage5.Location = New System.Drawing.Point(4, 22)
         Me.TabPage5.Name = "TabPage5"
-        Me.TabPage5.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage5.Size = New System.Drawing.Size(940, 585)
         Me.TabPage5.TabIndex = 4
         Me.TabPage5.Text = "Application List"
         Me.TabPage5.UseVisualStyleBackColor = True
@@ -1025,7 +1027,7 @@ Partial Class Main
         Me.txtExePath.Location = New System.Drawing.Point(98, 73)
         Me.txtExePath.Multiline = True
         Me.txtExePath.Name = "txtExePath"
-        Me.txtExePath.Size = New System.Drawing.Size(789, 53)
+        Me.txtExePath.Size = New System.Drawing.Size(835, 53)
         Me.txtExePath.TabIndex = 64
         '
         'txtDirectory
@@ -1035,7 +1037,7 @@ Partial Class Main
         Me.txtDirectory.Location = New System.Drawing.Point(98, 31)
         Me.txtDirectory.Multiline = True
         Me.txtDirectory.Name = "txtDirectory"
-        Me.txtDirectory.Size = New System.Drawing.Size(789, 36)
+        Me.txtDirectory.Size = New System.Drawing.Size(835, 36)
         Me.txtDirectory.TabIndex = 63
         '
         'Label2
@@ -1074,7 +1076,7 @@ Partial Class Main
         Me.dgvApplications.Location = New System.Drawing.Point(5, 132)
         Me.dgvApplications.Name = "dgvApplications"
         Me.dgvApplications.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvApplications.Size = New System.Drawing.Size(892, 427)
+        Me.dgvApplications.Size = New System.Drawing.Size(932, 450)
         Me.dgvApplications.TabIndex = 58
         '
         'btnStartApp
@@ -1096,7 +1098,7 @@ Partial Class Main
         Me.TabPage6.Controls.Add(Me.dgvProjects)
         Me.TabPage6.Location = New System.Drawing.Point(4, 22)
         Me.TabPage6.Name = "TabPage6"
-        Me.TabPage6.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage6.Size = New System.Drawing.Size(940, 585)
         Me.TabPage6.TabIndex = 5
         Me.TabPage6.Text = "Project List"
         Me.TabPage6.UseVisualStyleBackColor = True
@@ -1108,7 +1110,7 @@ Partial Class Main
         Me.txtProjectPath.Location = New System.Drawing.Point(80, 35)
         Me.txtProjectPath.Multiline = True
         Me.txtProjectPath.Name = "txtProjectPath"
-        Me.txtProjectPath.Size = New System.Drawing.Size(803, 53)
+        Me.txtProjectPath.Size = New System.Drawing.Size(853, 53)
         Me.txtProjectPath.TabIndex = 69
         '
         'Label32
@@ -1157,7 +1159,7 @@ Partial Class Main
         Me.dgvProjects.Location = New System.Drawing.Point(3, 94)
         Me.dgvProjects.Name = "dgvProjects"
         Me.dgvProjects.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvProjects.Size = New System.Drawing.Size(894, 465)
+        Me.dgvProjects.Size = New System.Drawing.Size(934, 488)
         Me.dgvProjects.TabIndex = 53
         '
         'TabPage9
@@ -1165,7 +1167,7 @@ Partial Class Main
         Me.TabPage9.Controls.Add(Me.TabControl2)
         Me.TabPage9.Location = New System.Drawing.Point(4, 22)
         Me.TabPage9.Name = "TabPage9"
-        Me.TabPage9.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage9.Size = New System.Drawing.Size(940, 585)
         Me.TabPage9.TabIndex = 8
         Me.TabPage9.Text = "Internet"
         Me.TabPage9.UseVisualStyleBackColor = True
@@ -1181,7 +1183,7 @@ Partial Class Main
         Me.TabControl2.Location = New System.Drawing.Point(3, 6)
         Me.TabControl2.Name = "TabControl2"
         Me.TabControl2.SelectedIndex = 0
-        Me.TabControl2.Size = New System.Drawing.Size(894, 553)
+        Me.TabControl2.Size = New System.Drawing.Size(934, 576)
         Me.TabControl2.TabIndex = 290
         '
         'TabPage12
@@ -1192,7 +1194,7 @@ Partial Class Main
         Me.TabPage12.Controls.Add(Me.DataGridView1)
         Me.TabPage12.Location = New System.Drawing.Point(4, 22)
         Me.TabPage12.Name = "TabPage12"
-        Me.TabPage12.Size = New System.Drawing.Size(886, 527)
+        Me.TabPage12.Size = New System.Drawing.Size(926, 550)
         Me.TabPage12.TabIndex = 2
         Me.TabPage12.Text = "Remote Andorville System List"
         Me.TabPage12.UseVisualStyleBackColor = True
@@ -1213,7 +1215,7 @@ Partial Class Main
         Me.TextBox1.Location = New System.Drawing.Point(75, 8)
         Me.TextBox1.Multiline = True
         Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(804, 53)
+        Me.TextBox1.Size = New System.Drawing.Size(844, 53)
         Me.TextBox1.TabIndex = 70
         '
         'Button1
@@ -1233,7 +1235,7 @@ Partial Class Main
         Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.DataGridView1.Location = New System.Drawing.Point(3, 67)
         Me.DataGridView1.Name = "DataGridView1"
-        Me.DataGridView1.Size = New System.Drawing.Size(880, 457)
+        Me.DataGridView1.Size = New System.Drawing.Size(920, 480)
         Me.DataGridView1.TabIndex = 1
         '
         'TabPage10
@@ -1254,7 +1256,7 @@ Partial Class Main
         Me.TabPage10.Location = New System.Drawing.Point(4, 22)
         Me.TabPage10.Name = "TabPage10"
         Me.TabPage10.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage10.Size = New System.Drawing.Size(886, 527)
+        Me.TabPage10.Size = New System.Drawing.Size(926, 550)
         Me.TabPage10.TabIndex = 0
         Me.TabPage10.Text = "Local"
         Me.TabPage10.UseVisualStyleBackColor = True
@@ -1307,7 +1309,7 @@ Partial Class Main
         Me.txtIpList.Multiline = True
         Me.txtIpList.Name = "txtIpList"
         Me.txtIpList.ScrollBars = System.Windows.Forms.ScrollBars.Both
-        Me.txtIpList.Size = New System.Drawing.Size(874, 218)
+        Me.txtIpList.Size = New System.Drawing.Size(914, 218)
         Me.txtIpList.TabIndex = 278
         '
         'btnPingNext255
@@ -1381,7 +1383,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.rtbIpList.Location = New System.Drawing.Point(6, 314)
         Me.rtbIpList.Name = "rtbIpList"
-        Me.rtbIpList.Size = New System.Drawing.Size(874, 207)
+        Me.rtbIpList.Size = New System.Drawing.Size(914, 230)
         Me.rtbIpList.TabIndex = 282
         Me.rtbIpList.Text = ""
         '
@@ -1390,13 +1392,15 @@ Partial Class Main
         Me.TabPage11.Location = New System.Drawing.Point(4, 22)
         Me.TabPage11.Name = "TabPage11"
         Me.TabPage11.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage11.Size = New System.Drawing.Size(886, 527)
+        Me.TabPage11.Size = New System.Drawing.Size(926, 550)
         Me.TabPage11.TabIndex = 1
         Me.TabPage11.Text = "Global"
         Me.TabPage11.UseVisualStyleBackColor = True
         '
         'TabPage7
         '
+        Me.TabPage7.Controls.Add(Me.btnCopyHtmlMarkup)
+        Me.TabPage7.Controls.Add(Me.btnPasteXml)
         Me.TabPage7.Controls.Add(Me.Label26)
         Me.TabPage7.Controls.Add(Me.Label34)
         Me.TabPage7.Controls.Add(Me.chkWrapText)
@@ -1404,15 +1408,35 @@ Partial Class Main
         Me.TabPage7.Controls.Add(Me.XmlHtmDisplay1)
         Me.TabPage7.Location = New System.Drawing.Point(4, 22)
         Me.TabPage7.Name = "TabPage7"
-        Me.TabPage7.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage7.Size = New System.Drawing.Size(941, 585)
         Me.TabPage7.TabIndex = 6
         Me.TabPage7.Text = "View XML"
         Me.TabPage7.UseVisualStyleBackColor = True
         '
+        'btnCopyHtmlMarkup
+        '
+        Me.btnCopyHtmlMarkup.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnCopyHtmlMarkup.Location = New System.Drawing.Point(772, 3)
+        Me.btnCopyHtmlMarkup.Name = "btnCopyHtmlMarkup"
+        Me.btnCopyHtmlMarkup.Size = New System.Drawing.Size(106, 22)
+        Me.btnCopyHtmlMarkup.TabIndex = 10
+        Me.btnCopyHtmlMarkup.Text = "Copy Html Markup"
+        Me.btnCopyHtmlMarkup.UseVisualStyleBackColor = True
+        '
+        'btnPasteXml
+        '
+        Me.btnPasteXml.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnPasteXml.Location = New System.Drawing.Point(884, 3)
+        Me.btnPasteXml.Name = "btnPasteXml"
+        Me.btnPasteXml.Size = New System.Drawing.Size(54, 22)
+        Me.btnPasteXml.TabIndex = 9
+        Me.btnPasteXml.Text = "Paste"
+        Me.btnPasteXml.UseVisualStyleBackColor = True
+        '
         'Label26
         '
         Me.Label26.AutoSize = True
-        Me.Label26.Location = New System.Drawing.Point(581, 4)
+        Me.Label26.Location = New System.Drawing.Point(588, 8)
         Me.Label26.Name = "Label26"
         Me.Label26.Size = New System.Drawing.Size(52, 13)
         Me.Label26.TabIndex = 4
@@ -1421,7 +1445,7 @@ Partial Class Main
         'Label34
         '
         Me.Label34.AutoSize = True
-        Me.Label34.Location = New System.Drawing.Point(519, 4)
+        Me.Label34.Location = New System.Drawing.Point(526, 8)
         Me.Label34.Name = "Label34"
         Me.Label34.Size = New System.Drawing.Size(56, 13)
         Me.Label34.TabIndex = 3
@@ -1430,7 +1454,7 @@ Partial Class Main
         'chkWrapText
         '
         Me.chkWrapText.AutoSize = True
-        Me.chkWrapText.Location = New System.Drawing.Point(437, 3)
+        Me.chkWrapText.Location = New System.Drawing.Point(444, 7)
         Me.chkWrapText.Name = "chkWrapText"
         Me.chkWrapText.Size = New System.Drawing.Size(76, 17)
         Me.chkWrapText.TabIndex = 2
@@ -1440,7 +1464,7 @@ Partial Class Main
         'Label33
         '
         Me.Label33.AutoSize = True
-        Me.Label33.Location = New System.Drawing.Point(3, 4)
+        Me.Label33.Location = New System.Drawing.Point(10, 8)
         Me.Label33.Name = "Label33"
         Me.Label33.Size = New System.Drawing.Size(428, 13)
         Me.Label33.TabIndex = 1
@@ -1453,7 +1477,7 @@ Partial Class Main
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.XmlHtmDisplay1.Font = New System.Drawing.Font("Arial", 10.0!)
-        Me.XmlHtmDisplay1.Location = New System.Drawing.Point(3, 20)
+        Me.XmlHtmDisplay1.Location = New System.Drawing.Point(3, 30)
         Me.XmlHtmDisplay1.Name = "XmlHtmDisplay1"
         TextSettings1.Bold = False
         TextSettings1.Color = System.Drawing.Color.Black
@@ -1593,7 +1617,7 @@ Partial Class Main
         TextSettings15.PointSize = 10.0!
         XmlHtmDisplaySettings1.XValue = TextSettings15
         Me.XmlHtmDisplay1.Settings = XmlHtmDisplaySettings1
-        Me.XmlHtmDisplay1.Size = New System.Drawing.Size(934, 539)
+        Me.XmlHtmDisplay1.Size = New System.Drawing.Size(935, 552)
         Me.XmlHtmDisplay1.TabIndex = 0
         Me.XmlHtmDisplay1.Text = ""
         '
@@ -1605,7 +1629,7 @@ Partial Class Main
         Me.TabPage8.Controls.Add(Me.XmlHtmDisplay2)
         Me.TabPage8.Location = New System.Drawing.Point(4, 22)
         Me.TabPage8.Name = "TabPage8"
-        Me.TabPage8.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage8.Size = New System.Drawing.Size(940, 585)
         Me.TabPage8.TabIndex = 7
         Me.TabPage8.Text = "View HTML"
         Me.TabPage8.UseVisualStyleBackColor = True
@@ -1784,7 +1808,7 @@ Partial Class Main
         TextSettings30.PointSize = 10.0!
         XmlHtmDisplaySettings2.XValue = TextSettings30
         Me.XmlHtmDisplay2.Settings = XmlHtmDisplaySettings2
-        Me.XmlHtmDisplay2.Size = New System.Drawing.Size(934, 539)
+        Me.XmlHtmDisplay2.Size = New System.Drawing.Size(934, 562)
         Me.XmlHtmDisplay2.TabIndex = 1
         Me.XmlHtmDisplay2.Text = ""
         '
@@ -1807,7 +1831,7 @@ Partial Class Main
         Me.TabPage13.Controls.Add(Me.DataGridView2)
         Me.TabPage13.Location = New System.Drawing.Point(4, 22)
         Me.TabPage13.Name = "TabPage13"
-        Me.TabPage13.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage13.Size = New System.Drawing.Size(940, 585)
         Me.TabPage13.TabIndex = 9
         Me.TabPage13.Text = "View Zip Archive"
         Me.TabPage13.UseVisualStyleBackColor = True
@@ -1948,7 +1972,7 @@ Partial Class Main
         Me.DataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.DataGridView2.Location = New System.Drawing.Point(3, 59)
         Me.DataGridView2.Name = "DataGridView2"
-        Me.DataGridView2.Size = New System.Drawing.Size(934, 500)
+        Me.DataGridView2.Size = New System.Drawing.Size(934, 523)
         Me.DataGridView2.TabIndex = 10
         '
         'TabPage2
@@ -1988,7 +2012,7 @@ Partial Class Main
         Me.TabPage2.Location = New System.Drawing.Point(4, 22)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(940, 562)
+        Me.TabPage2.Size = New System.Drawing.Size(940, 585)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "Project Information"
         Me.TabPage2.UseVisualStyleBackColor = True
@@ -2277,7 +2301,7 @@ Partial Class Main
         '
         Me.btnWebPages.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnWebPages.ContextMenuStrip = Me.ContextMenuStrip2
-        Me.btnWebPages.Location = New System.Drawing.Point(659, 12)
+        Me.btnWebPages.Location = New System.Drawing.Point(660, 12)
         Me.btnWebPages.Name = "btnWebPages"
         Me.btnWebPages.Size = New System.Drawing.Size(68, 22)
         Me.btnWebPages.TabIndex = 276
@@ -2328,7 +2352,7 @@ Partial Class Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(972, 640)
+        Me.ClientSize = New System.Drawing.Size(973, 663)
         Me.Controls.Add(Me.btnWebPages)
         Me.Controls.Add(Me.TabControl1)
         Me.Controls.Add(Me.btnAppInfo)
@@ -2562,4 +2586,6 @@ Partial Class Main
     Friend WithEvents btnSelect As Button
     Friend WithEvents FolderBrowserDialog1 As FolderBrowserDialog
     Friend WithEvents btnClose As Button
+    Friend WithEvents btnPasteXml As Button
+    Friend WithEvents btnCopyHtmlMarkup As Button
 End Class

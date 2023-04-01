@@ -23,6 +23,7 @@ Imports System.ComponentModel
 
 Imports System.IO
 Imports System.IO.Compression
+Imports Microsoft.Office.Interop.Word
 
 <PermissionSet(SecurityAction.Demand, Name:="FullTrust")>
 <System.Runtime.InteropServices.ComVisibleAttribute(True)>
@@ -969,6 +970,7 @@ Public Class Main
 
         'Read the Application Information file: ---------------------------------------------
         ApplicationInfo.ApplicationDir = My.Application.Info.DirectoryPath.ToString 'Set the Application Directory property
+
         ''Get the Application Version Information:
         'ApplicationInfo.Version.Major = My.Application.Info.Version.Major
         'ApplicationInfo.Version.Minor = My.Application.Info.Version.Minor
@@ -1040,11 +1042,14 @@ Public Class Main
             Project.ReadLastProjectInfo()
             'The Last_Project_Info.xml file contains:
             '  Project Name and Description. Settings Location Type and Settings Location Path.
-            Message.Add("Last project info has been read." & vbCrLf)
-            'Message.Add("Project.Type.ToString  " & Project.Type.ToString & vbCrLf)
-            Message.Add("Project type: " & Project.Type.ToString & vbCrLf)
-            'Message.Add("Project.Path  " & Project.Path & vbCrLf)
-            Message.Add("Project path: " & Project.Path & vbCrLf)
+            'Message.Add("Last project info has been read." & vbCrLf)
+            ''Message.Add("Project.Type.ToString  " & Project.Type.ToString & vbCrLf)
+            'Message.Add("Project type: " & Project.Type.ToString & vbCrLf)
+            ''Message.Add("Project.Path  " & Project.Path & vbCrLf)
+            'Message.Add("Project path: " & Project.Path & vbCrLf)
+            Message.Add("Last project details:" & vbCrLf)
+            Message.Add("Project Type:  " & Project.Type.ToString & vbCrLf)
+            Message.Add("Project Path:  " & Project.Path & vbCrLf)
 
             'At this point read the application start arguments, if any.
             'The selected project may be changed here.
@@ -1262,7 +1267,7 @@ Public Class Main
         XmlHtmDisplay1.Settings.UpdateFontIndexes()
         XmlHtmDisplay1.Settings.UpdateColorIndexes()
 
-        XmlHtmDisplay1.Settings.XmlLargeFileSizeLimit = 100000
+        XmlHtmDisplay1.Settings.XmlLargeFileSizeLimit = 1000000
 
         XmlHtmDisplay2.AllowDrop = True
 
@@ -5933,9 +5938,9 @@ Public Class Main
 
                     Else
                         If App.List(ApplicationNo).Description = Data Then
-                            'Executable path has not been changed.
+                            'The Application description has not been changed.
                         Else
-                            'Executable path has been changed.
+                            'The Application description has been changed.
                             App.List(ApplicationNo).Description = Data
                             Message.Add("Application description for " & App.List(ApplicationNo).Name & " has been changed to: " & vbCrLf & App.List(ApplicationNo).Description & vbCrLf)
                         End If
@@ -7475,11 +7480,11 @@ Public Class Main
                 rtbIpList.AppendText(PingResultStr & vbCrLf)
             End If
         Else
-                'PingResultStr &= "Error: " & e.Error.Message & vbCrLf
-                'If e.Error.InnerException IsNot Nothing Then
-                '    PingResultStr &= "More information: " & e.Error.InnerException.Message & vbCrLf
-                'End If
-            End If
+            'PingResultStr &= "Error: " & e.Error.Message & vbCrLf
+            'If e.Error.InnerException IsNot Nothing Then
+            '    PingResultStr &= "More information: " & e.Error.InnerException.Message & vbCrLf
+            'End If
+        End If
 
         'rtbIpList.AppendText(PingResultStr & vbCrLf)
 
@@ -7689,55 +7694,59 @@ Public Class Main
             Dim ZipPath As String
             Dim Zip As System.IO.Compression.ZipArchive
             Zip = ZipFile.Open(ZipFilePath, ZipArchiveMode.Update)
-            For Each item In FileList
-                If System.IO.File.Exists(item) Then
-                    FileName = System.IO.Path.GetFileName(item)
-                    ZipPath = Path.Combine(txtZipDirectory.Text.Trim, FileName)
-                    'If IsNothing(Zip.GetEntry(FileName)) Then
-                    If IsNothing(Zip.GetEntry(ZipPath)) Then
-                        'Zip.CreateEntryFromFile(item, FileName)
-                        Zip.CreateEntryFromFile(item, ZipPath)
+            Try
+                For Each item In FileList
+                    If System.IO.File.Exists(item) Then
+                        FileName = System.IO.Path.GetFileName(item)
+                        ZipPath = Path.Combine(txtZipDirectory.Text.Trim, FileName)
+                        'If IsNothing(Zip.GetEntry(FileName)) Then
+                        If IsNothing(Zip.GetEntry(ZipPath)) Then
+                            'Zip.CreateEntryFromFile(item, FileName)
+                            Zip.CreateEntryFromFile(item, ZipPath)
 
-                        ''Check if the item is a directory:
-                        'If File.GetAttributes(item).HasFlag(FileAttributes.Directory) Then
-                        '    CreateEntryFromAny(Zip, item, "")
+                            ''Check if the item is a directory:
+                            'If File.GetAttributes(item).HasFlag(FileAttributes.Directory) Then
+                            '    CreateEntryFromAny(Zip, item, "")
+                            'Else
+                            '    Zip.CreateEntryFromFile(item, FileName)
+                            'End If
+
+                            'If System.IO.Directory.Exists(item) Then 'Create an entry from a directory:
+
+                            '    CreateEntryFromAny(Zip, item, "")
+                            'Else
+                            '    Zip.CreateEntryFromFile(item, FileName)
+                            'End If
+                        Else
+                            Message.AddWarning("A file with the same name is already in the archive: " & item & vbCrLf)
+                        End If
+                        'UPDATE:
+                        'Dim entry As ZipArchiveEntry = Zip.GetEntry(FileName)
+                        'If IsNothing(entry) Then
+
                         'Else
-                        '    Zip.CreateEntryFromFile(item, FileName)
+                        '    entry.Delete()
                         'End If
+                        'Dim newEntry As ZipArchiveEntry = Zip.CreateEntry(FileName)
 
-                        'If System.IO.Directory.Exists(item) Then 'Create an entry from a directory:
-
-                        '    CreateEntryFromAny(Zip, item, "")
+                    ElseIf System.IO.Directory.Exists(item) Then 'Create an entry from a directory:
+                        'FileName = System.IO.Path.GetFileName(item) 'The name of the directory
+                        'If IsNothing(Zip.GetEntry(FileName)) Then
+                        '    'CreateEntryFromAny(Zip, item, "")
+                        '    CreateEntry(Zip, item, "")
                         'Else
-                        '    Zip.CreateEntryFromFile(item, FileName)
+                        '    Message.AddWarning("A directory with the same name is already in the archive: " & item & vbCrLf)
                         'End If
+                        CreateEntry(Zip, item, txtZipDirectory.Text.Trim) 'Paste the directory in the directory shown in txtZipDirectory
                     Else
-                        Message.AddWarning("A file with the same name is already in the archive: " & item & vbCrLf)
+                        Message.AddWarning("The file or directory to paste was not found: " & item & vbCrLf)
                     End If
-                    'UPDATE:
-                    'Dim entry As ZipArchiveEntry = Zip.GetEntry(FileName)
-                    'If IsNothing(entry) Then
-
-                    'Else
-                    '    entry.Delete()
-                    'End If
-                    'Dim newEntry As ZipArchiveEntry = Zip.CreateEntry(FileName)
-
-                ElseIf System.IO.Directory.Exists(item) Then 'Create an entry from a directory:
-                    'FileName = System.IO.Path.GetFileName(item) 'The name of the directory
-                    'If IsNothing(Zip.GetEntry(FileName)) Then
-                    '    'CreateEntryFromAny(Zip, item, "")
-                    '    CreateEntry(Zip, item, "")
-                    'Else
-                    '    Message.AddWarning("A directory with the same name is already in the archive: " & item & vbCrLf)
-                    'End If
-                    CreateEntry(Zip, item, txtZipDirectory.Text.Trim) 'Paste the directory in the directory shown in txtZipDirectory
-                Else
-                    Message.AddWarning("The file or directory to paste was not found: " & item & vbCrLf)
-                End If
-            Next
-            Zip.Dispose()
-            'GetArchiveFileList()
+                Next
+                Zip.Dispose()
+                'GetArchiveFileList()
+            Catch ex As Exception
+                Message.AddWarning("Error pasting files from the ClipBoard: " & ex.Message & vbCrLf)
+            End Try
 
             'Update the Archive file list:
             DataGridView2.Rows.Clear()
@@ -7920,6 +7929,771 @@ Public Class Main
 
     End Sub
 
+    'Private Sub btnCbRtfToHtml_Click(sender As Object, e As EventArgs) Handles btnCbRtfToHtml.Click
+    '    'Convert the selected rtf to html and place in the clipboard.
+
+    '    If Clipboard.ContainsText(TextDataFormat.Rtf) Then
+    '        Dim rtfString As String = My.Computer.Clipboard.GetText(TextDataFormat.Rtf)
+    '        Clipboard.SetText(RTF2HTML(rtfString), TextDataFormat.Text)
+    '    Else
+    '        Message.AddWarning("The Clipboard does not contain Rich Text Format data." & vbCrLf)
+    '    End If
+
+    '    'Clipboard.SetText(RtfToHtml(XmlHtmDisplay1), TextDataFormat.Text)
+
+    '    'If Clipboard.ContainsText(TextDataFormat.Rtf) Then
+    '    '    Dim rtfString As String = My.Computer.Clipboard.GetText(TextDataFormat.Rtf)
+    '    '    Clipboard.SetText(sRTF_To_HTML(rtfString), TextDataFormat.Text)
+    '    'Else
+    '    '    Message.AddWarning("The Clipboard does not contain Rich Text Format data." & vbCrLf)
+    '    'End If
+    'End Sub
+
+    'VB Classic
+    'https://www.tek-tips.com/faqs.cfm?fid=7218
+    '    Public Function RTFtoHTML(ByVal RTFBox As RichTextBox) As String
+
+    '        Dim mRGB(2) As Byte
+    '        Const html_Break = "<BR>"
+
+    '        'HTML$ = "<html>" & NL & "<body>" & NL
+    '        Dim HTML As String = "<html>" & vbCrLf & "<body>" & vbCrLf
+    '        'BullStyle$ = "{ margin-left: 15px; margin-bottom: 0px; margin-top: 0px; }"
+    '        Dim BullStyle As String = "{ margin-left: 15px; margin-bottom: 0px; margin-top: 0px; }"
+    '        curr_Align = -1
+    '        With RTFBox
+    '            txt$ = .Text
+    '            For A& = 0 To Len(txt$)
+    '                .SelStart = A&
+
+    '                If (A& <> 0) Then
+    '                    If (Mid$(txt$, A&, 2) = "•" & vbTab) Then
+    '                        HTML$ = HTML$ & "<UL class='bull'><LI>"
+    '                        curr_Bullet = True
+    '                        A& = A& + 1
+    '                        GoTo s_Skip
+    '                    End If
+    '                End If
+    '                If (curr_FontFace <> .SelFontName) Or (curr_FontSize <> .SelFontSize) Or (curr_ForeColour <> .SelColor) Then
+    '                    CC& = .SelColor
+    '                    CopyMemory mRGB(0), CC&, Len(CC&)
+    'GC$ = Right$("0" & Hex$(mRGB(0)), 2) & Right$("0" & Hex$(mRGB(1)), 2) & Right$("0" & Hex$(mRGB(2)), 2)
+    '                    HTML$ = HTML$ & IIf(A& = 0, "", "</span>") & "<span style='"
+    '                    Lump$ = "{ font-family: " & .SelFontName & "; font-size: " & .SelFontSize & "pt; color: #" & GC$ & "; }"
+    '                    If (A& = 0) Then MainStyle$ = Lump$
+    '                    HTML$ = HTML$ & Lump$ & "'>"
+    '                    curr_FontFace = .SelFontName
+    '                    curr_FontSize = .SelFontSize
+    '                    curr_ForeColour = .SelColor
+    '                End If
+    '                If (curr_Bold <> .SelBold) Then
+    '                    HTML$ = HTML$ & IIf(.SelBold, "<B>", "</B>")
+    '                    curr_Bold = .SelBold
+    '                End If
+    '                If (curr_Under <> .SelUnderline) Then
+    '                    HTML$ = HTML$ & IIf(.SelUnderline, "<U>", "</U>")
+    '                    curr_Under = .SelUnderline
+    '                End If
+    '                If (curr_Italic <> .SelItalic) Then
+    '                    HTML$ = HTML$ & IIf(.SelItalic, "<I>", "</I>")
+    '                    curr_Italic = .SelItalic
+    '                End If
+    '                If (curr_Align <> .SelAlignment) Then
+    '                    HTML$ = HTML$ & IIf((A& <> 0) And (Ended = False), "</P>", "") & "<P style='{ margin-top: 0px; margin-bottom: 0px; }' Align='" & Choose(.SelAlignment + 1, "left", "right", "center") & "'>"
+    '                    Ended = False
+    '                    curr_Align = .SelAlignment
+    '                End If
+    '                If (A& <> 0) Then
+    '                    If (Mid$(txt$, A&, 2) = vbCrLf) Then
+    '                        If (curr_Bullet = True) Then
+    '                            HTML$ = HTML$ & "</UL>"
+    '                            Ended = True
+    '                            curr_Bullet = False
+    '                        Else
+    '                            HTML$ = HTML$ & html_Break
+    '                        End If
+    '                        A& = A& + 1
+    '                    ElseIf (Mid$(txt$, A&, 1) = "<") Then
+    '                        HTML$ = HTML$ & "&lt;"
+    '                    ElseIf (Mid$(txt$, A&, 1) = ">") Then
+    '                        HTML$ = HTML$ & "&gt;"
+    '                    Else
+    '                        HTML$ = HTML$ & Mid$(txt$, A&, 1)
+    '                    End If
+    '                End If
+    's_Skip:
+    '            Next A&
+    '        End With
+
+    '        HTML$ = Replace$(HTML$, html_Break & "</P>", "</P>")
+    '        HTML$ = Replace$(HTML$, "<span style='" & MainStyle$ & "'>", "<span class='core'>")
+    '        HTML$ = HTML$ & vbCrLf _
+    '                & "<style>" & vbCrLf _
+    '                & "span.core " & MainStyle$ & vbCrLf _
+    '                & "ul.bull " & BullStyle$ & vbCrLf _
+    '                & "</style>" & vbCrLf
+
+    '        RTFtoHTML = HTML$
+
+    '    End Function
+
+
+    ''ERROR:
+    ''http://www.vb-helper.com/howto_rtf_to_html.html
+    'Function RTF2HTML(strRTF As String) As String
+    '    'Version 2.7
+
+    '    'The current version of this function is available at
+    '    'http://www2.bitstream.net/~bradyh/downloads/rtf2html.zip
+
+    '    'More information can be found at
+    '    'http://www2.bitstream.net/~bradyh/downloads/rtf2htmlrm.html
+
+    '    'Converts Rich Text encoded text to HTML format
+    '    'if you find some text that this function doesn't
+    '    'convert properly please email the text to
+    '    'bradyh@bitstream.net
+    '    Dim strHTML As String
+    '    Dim l As Integer 'Long
+    '    Dim lTmp As Integer 'Long
+    '    Dim lTmp2 As Integer 'Long
+    '    Dim lTmp3 As Integer 'Long
+    '    Dim lRTFLen As Integer 'Long
+    '    Dim lBOS As Integer 'Long                 'beginning of section
+    '    Dim lEOS As Integer 'Long                 'end of section
+    '    Dim strTmp As String
+    '    Dim strTmp2 As String
+    '    Dim strEOS As String             'string to be added to end of section
+    '    Dim strBOS As String             'string to be added to beginning of section
+    '    Dim strEOP As String             'string to be added to end of paragraph
+    '    Dim strBOL As String             'string to be added to the begining of each new line
+    '    Dim strEOL As String             'string to be added to the end of each new line
+    '    Dim strEOCL As String            'string to be added to the end of current line
+    '    Dim strEOLL As String            'string to be added to the end of previous line
+    '    Dim strCurFont As String         'current font code eg: "f3"
+    '    Dim strCurFontSize As String     'current font size eg: "fs20"
+    '    Dim strCurColor As String        'current font color eg: "cf2"
+    '    Dim strFontFace As String        'Font face for current font
+    '    Dim strFontColor As String       'Font color for current font
+    '    Dim lFontSize As Integer         'Font size for current font
+    '    Const gHellFrozenOver = False    'always false
+    '    Dim gSkip As Boolean             'skip to next word/command
+    '    Dim strCodes As String           'codes for ascii to HTML char conversion
+    '    Dim strCurLine As String         'temp storage for text for current line before being added to strHTML
+    '    Dim strColorTable() As String    'table of colors
+    '    Dim lColors As Integer 'Long              '# of colors
+    '    Dim strFontTable() As String     'table of fonts
+    '    Dim lFonts As Integer 'Long               '# of fonts
+    '    Dim strFontCodes As String       'list of font code modifiers
+    '    Dim gSeekingText As Boolean      'True if we have to hit text before inserting a </FONT>
+    '    Dim gText As Boolean             'true if there is text (as opposed to a control code) in strTmp
+    '    Dim strAlign As String           '"center" or "right"
+    '    Dim gAlign As Boolean            'if current text is aligned
+
+    '    'setup HTML codes
+    '    strCodes = "&nbsp;  {00}&copy;  {a9}&acute; {b4}&laquo; {ab}&raquo; {bb}&iexcl; {a1}&iquest;{bf}&Agrave;{c0}&agrave;{e0}&Aacute;{c1}"
+    '    strCodes = strCodes & "&aacute;{e1}&Acirc; {c2}&acirc; {e2}&Atilde;{c3}&atilde;{e3}&Auml;  {c4}&auml;  {e4}&Aring; {c5}&aring; {e5}&AElig; {c6}"
+    '    strCodes = strCodes & "&aelig; {e6}&Ccedil;{c7}&ccedil;{e7}&ETH;   {d0}&eth;   {f0}&Egrave;{c8}&egrave;{e8}&Eacute;{c9}&eacute;{e9}&Ecirc; {ca}"
+    '    strCodes = strCodes & "&ecirc; {ea}&Euml;  {cb}&euml;  {eb}&Igrave;{cc}&igrave;{ec}&Iacute;{cd}&iacute;{ed}&Icirc; {ce}&icirc; {ee}&Iuml;  {cf}"
+    '    strCodes = strCodes & "&iuml;  {ef}&Ntilde;{d1}&ntilde;{f1}&Ograve;{d2}&ograve;{f2}&Oacute;{d3}&oacute;{f3}&Ocirc; {d4}&ocirc; {f4}&Otilde;{d5}"
+    '    strCodes = strCodes & "&otilde;{f5}&Ouml;  {d6}&ouml;  {f6}&Oslash;{d8}&oslash;{f8}&Ugrave;{d9}&ugrave;{f9}&Uacute;{da}&uacute;{fa}&Ucirc; {db}"
+    '    strCodes = strCodes & "&ucirc; {fb}&Uuml;  {dc}&uuml;  {fc}&Yacute;{dd}&yacute;{fd}&yuml;  {ff}&THORN; {de}&thorn; {fe}&szlig; {df}&sect;  {a7}"
+    '    strCodes = strCodes & "&para;  {b6}&micro; {b5}&brvbar;{a6}&plusmn;{b1}&middot;{b7}&uml;   {a8}&cedil; {b8}&ordf;  {aa}&ordm;  {ba}&not;   {ac}"
+    '    strCodes = strCodes & "&shy;   {ad}&macr;  {af}&deg;   {b0}&sup1;  {b9}&sup2;  {b2}&sup3;  {b3}&frac14;{bc}&frac12;{bd}&frac34;{be}&times; {d7}"
+    '    strCodes = strCodes & "&divide;{f7}&cent;  {a2}&pound; {a3}&curren;{a4}&yen;   {a5}...     {85}"
+
+    '    'setup color table
+    '    lColors = 0
+    '    ReDim strColorTable(0)
+    '    lBOS = InStr(strRTF, "\colortbl")
+    '    If lBOS <> 0 Then
+    '        lEOS = InStr(lBOS, strRTF, ";}")
+    '        If lEOS <> 0 Then
+    '            lBOS = InStr(lBOS, strRTF, "\red")
+    '            While ((lBOS <= lEOS) And (lBOS <> 0))
+    '                ReDim Preserve strColorTable(lColors)
+    '                strTmp = Trim(Hex(Mid(strRTF, lBOS + 4, 1) & IIf(IsNumeric(Mid(strRTF, lBOS + 5, 1)), Mid(strRTF, lBOS + 5, 1), "") & IIf(IsNumeric(Mid(strRTF, lBOS + 6, 1)), Mid(strRTF, lBOS + 6, 1), "")))
+    '                If Len(strTmp) = 1 Then strTmp = "0" & strTmp
+    '                strColorTable(lColors) = strColorTable(lColors) & strTmp
+    '                lBOS = InStr(lBOS, strRTF, "\green")
+    '                strTmp = Trim(Hex(Mid(strRTF, lBOS + 6, 1) & IIf(IsNumeric(Mid(strRTF, lBOS + 7, 1)), Mid(strRTF, lBOS + 7, 1), "") & IIf(IsNumeric(Mid(strRTF, lBOS + 8, 1)), Mid(strRTF, lBOS + 8, 1), "")))
+    '                If Len(strTmp) = 1 Then strTmp = "0" & strTmp
+    '                strColorTable(lColors) = strColorTable(lColors) & strTmp
+    '                lBOS = InStr(lBOS, strRTF, "\blue")
+    '                strTmp = Trim(Hex(Mid(strRTF, lBOS + 5, 1) & IIf(IsNumeric(Mid(strRTF, lBOS + 6, 1)), Mid(strRTF, lBOS + 6, 1), "") & IIf(IsNumeric(Mid(strRTF, lBOS + 7, 1)), Mid(strRTF, lBOS + 7, 1), "")))
+    '                If Len(strTmp) = 1 Then strTmp = "0" & strTmp
+    '                strColorTable(lColors) = strColorTable(lColors) & strTmp
+    '                lBOS = InStr(lBOS, strRTF, "\red")
+    '                lColors = lColors + 1
+    '            End While 'Wend
+    '        End If
+    '    End If
+
+    '    'setup font table
+    '    lFonts = 0
+    '    ReDim strFontTable(0)
+    '    lBOS = InStr(strRTF, "\fonttbl")
+    '    If lBOS <> 0 Then
+    '        lEOS = InStr(lBOS, strRTF, ";}}")
+    '        If lEOS <> 0 Then
+    '            lBOS = InStr(lBOS, strRTF, "\f0")
+    '            While ((lBOS <= lEOS) And (lBOS <> 0))
+    '                ReDim Preserve strFontTable(lFonts)
+    '                While ((Mid(strRTF, lBOS, 1) <> " ") And (lBOS <= lEOS))
+    '                    lBOS = lBOS + 1
+    '                End While 'Wend
+    '                lBOS = lBOS + 1
+    '                strTmp = Mid(strRTF, lBOS, InStr(lBOS, strRTF, ";") - lBOS)
+    '                strFontTable(lFonts) = strFontTable(lFonts) & strTmp
+    '                lBOS = InStr(lBOS, strRTF, "\f" & (lFonts + 1))
+    '                lFonts = lFonts + 1
+    '            End While 'Wend
+    '        End If
+    '    End If
+
+    '    strHTML = ""
+    '    lRTFLen = Len(strRTF)
+    '    'seek first line with text on it
+    '    lBOS = InStr(strRTF, vbCrLf & "\deflang")
+    '    'If lBOS = 0 Then GoTo finally Else lBOS = lBOS + 2
+    '    If lBOS = 0 Then
+    '        strHTML = strHTML & strEOS
+    '        'clear up any hanging fonts
+    '        If (Len(strFontColor & strFontFace) > 0) Then strHTML = strHTML & "</FONT>"
+    '        RTF2HTML = strHTML
+    '        Exit Function
+    '    Else
+    '        lBOS = lBOS + 2
+    '    End If
+    '    lEOS = InStr(lBOS, strRTF, vbCrLf & "\par")
+
+    '    'If lEOS = 0 Then GoTo finally
+    '    If lEOS = 0 Then
+    '        strHTML = strHTML & strEOS
+    '        'clear up any hanging fonts
+    '        If (Len(strFontColor & strFontFace) > 0) Then strHTML = strHTML & "</FONT>"
+    '        RTF2HTML = strHTML
+    '        Exit Function
+    '    End If
+
+    '    While Not gHellFrozenOver
+    '        strTmp = Mid(strRTF, lBOS, lEOS - lBOS)
+    '        l = lBOS
+    '        While l <= lEOS
+    '            strTmp = Mid(strRTF, l, 1)
+    '            Select Case strTmp
+    '                Case "{"
+    '                    l = l + 1
+    '                Case "}"
+    '                    strCurLine = strCurLine & strEOS
+    '                    strEOS = ""
+    '                    l = l + 1
+    '                Case "\"    'special code
+    '                    l = l + 1
+    '                    strTmp = Mid(strRTF, l, 1)
+    '                    Select Case strTmp
+    '                        Case "b"
+    '                            If ((Mid(strRTF, l + 1, 1) = " ") Or (Mid(strRTF, l + 1, 1) = "\")) Then
+    '                                'b = bold
+    '                                strCurLine = strCurLine & "<B>"
+    '                                strEOS = "</B>" & strEOS
+    '                                If (Mid(strRTF, l + 1, 1) = " ") Then l = l + 1
+    '                            ElseIf (Mid(strRTF, l, 7) = "bullet ") Then
+    '                                strTmp = "•"     'bullet
+    '                                l = l + 6
+    '                                gText = True
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "c"
+    '                            If ((Mid(strRTF, l, 2) = "cf") And (IsNumeric(Mid(strRTF, l + 2, 1)))) Then
+    '                                'cf = color font
+    '                                lTmp = Val(Mid(strRTF, l + 2, 5))
+    '                                If lTmp <= UBound(strColorTable) Then
+    '                                    strCurColor = "cf" & lTmp
+    '                                    strFontColor = "#" & strColorTable(lTmp)
+    '                                    gSeekingText = True
+    '                                End If
+    '                                'move "cursor" position to next rtf code
+    '                                lTmp = l
+    '                                While ((Mid(strRTF, lTmp, 1) <> " ") And (Mid(strRTF, lTmp, 1) <> "\"))
+    '                                    lTmp = lTmp + 1
+    '                                End While 'Wend
+    '                                If (Mid(strRTF, lTmp, 1) = " ") Then
+    '                                    l = lTmp
+    '                                Else
+    '                                    l = lTmp - 1
+    '                                End If
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "e"
+    '                            If (Mid(strRTF, l, 7) = "emdash ") Then
+    '                                strTmp = "—"
+    '                                l = l + 6
+    '                                gText = True
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "f"
+    '                            If IsNumeric(Mid(strRTF, l + 1, 1)) Then
+    '                                'f# = font
+    '                                'first get font number
+    '                                lTmp = l + 2
+    '                                strTmp2 = Mid(strRTF, l + 1, 1)
+    '                                While IsNumeric(Mid(strRTF, lTmp, 1))
+    '                                    strTmp2 = strTmp2 & Mid(strRTF, lTmp2, 1)
+    '                                    lTmp = lTmp + 1
+    '                                End While 'Wend
+    '                                lTmp = Val(strTmp2)
+    '                                strCurFont = "f" & lTmp
+    '                                If ((lTmp <= UBound(strFontTable)) And (strFontTable(lTmp) <> strFontTable(0))) Then
+    '                                    'insert codes if lTmp is a valid font # AND the font is not the default font
+    '                                    strFontFace = strFontTable(lTmp)
+    '                                    gSeekingText = True
+    '                                End If
+    '                                'move "cursor" position to next rtf code
+    '                                lTmp = l
+    '                                While ((Mid(strRTF, lTmp, 1) <> " ") And (Mid(strRTF, lTmp, 1) <> "\"))
+    '                                    lTmp = lTmp + 1
+    '                                End While 'Wend
+    '                                If (Mid(strRTF, lTmp, 1) = " ") Then
+    '                                    l = lTmp
+    '                                Else
+    '                                    l = lTmp - 1
+    '                                End If
+    '                            ElseIf ((Mid(strRTF, l + 1, 1) = "s") And (IsNumeric(Mid(strRTF, l + 2, 1)))) Then
+    '                                'fs# = font size
+    '                                'first get font size
+    '                                lTmp = l + 3
+    '                                strTmp2 = Mid(strRTF, l + 2, 1)
+    '                                While IsNumeric(Mid(strRTF, lTmp, 1))
+    '                                    strTmp2 = strTmp2 & Mid(strRTF, lTmp, 1)
+    '                                    lTmp = lTmp + 1
+    '                                End While 'Wend
+    '                                lTmp = Val(strTmp2)
+    '                                strCurFontSize = "fs" & lTmp
+    '                                lFontSize = Int((lTmp / 5) - 2)
+    '                                If lFontSize = 2 Then
+    '                                    strCurFontSize = ""
+    '                                    lFontSize = 0
+    '                                Else
+    '                                    gSeekingText = True
+    '                                    If lFontSize > 8 Then lFontSize = 8
+    '                                    If lFontSize < 1 Then lFontSize = 1
+    '                                End If
+    '                                'move "cursor" position to next rtf code
+    '                                lTmp = l
+    '                                While ((Mid(strRTF, lTmp, 1) <> " ") And (Mid(strRTF, lTmp, 1) <> "\"))
+    '                                    lTmp = lTmp + 1
+    '                                End While 'Wend
+    '                                If (Mid(strRTF, lTmp, 1) = " ") Then
+    '                                    l = lTmp
+    '                                Else
+    '                                    l = lTmp - 1
+    '                                End If
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "i"
+    '                            If ((Mid(strRTF, l + 1, 1) = " ") Or (Mid(strRTF, l + 1, 1) = "\")) Then
+    '                                strCurLine = strCurLine & "<I>"
+    '                                strEOS = "</I>" & strEOS
+    '                                If (Mid(strRTF, l + 1, 1) = " ") Then l = l + 1
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "l"
+    '                            If (Mid(strRTF, l, 10) = "ldblquote ") Then
+    '                                'strTmp = "“"
+    '                                strTmp = Chr(34)
+    '                                l = l + 9
+    '                                gText = True
+    '                            ElseIf (Mid(strRTF, l, 7) = "lquote ") Then
+    '                                strTmp = "‘"
+    '                                l = l + 6
+    '                                gText = True
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "p"
+    '                            If ((Mid(strRTF, l, 6) = "plain\") Or (Mid(strRTF, l, 6) = "plain ")) Then
+    '                                If (Len(strFontColor & strFontFace) > 0) Then
+    '                                    If Not gSeekingText Then strCurLine = strCurLine & "</FONT>"
+    '                                    strFontColor = ""
+    '                                    strFontFace = ""
+    '                                End If
+    '                                If gAlign Then
+    '                                    strCurLine = strCurLine & "</TD></TR></TABLE><BR>"
+    '                                    gAlign = False
+    '                                End If
+    '                                strCurLine = strCurLine & strEOS
+    '                                strEOS = ""
+    '                                If Mid(strRTF, l + 5, 1) = "\" Then l = l + 4 Else l = l + 5    'catch next \ but skip a space
+    '                            ElseIf (Mid(strRTF, l, 9) = "pnlvlblt\") Then
+    '                                'bulleted list
+    '                                strEOS = ""
+    '                                strBOS = "<UL>"
+    '                                strBOL = "<LI>"
+    '                                strEOL = "</LI>"
+    '                                strEOP = "</UL>"
+    '                                l = l + 7    'catch next \
+    '                            ElseIf (Mid(strRTF, l, 7) = "pntext\") Then
+    '                                l = InStr(l, strRTF, "}")   'skip to end of braces
+    '                            ElseIf (Mid(strRTF, l, 6) = "pntxtb") Then
+    '                                l = InStr(l, strRTF, "}")   'skip to end of braces
+    '                            ElseIf (Mid(strRTF, l, 10) = "pard\plain") Then
+    '                                strCurLine = strCurLine & strEOS & strEOP
+    '                                strEOS = ""
+    '                                strEOP = ""
+    '                                strBOL = ""
+    '                                strEOL = "<BR>"
+    '                                l = l + 3    'catch next \
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "q"
+    '                            If ((Mid(strRTF, l, 3) = "qc\") Or (Mid(strRTF, l, 3) = "qc ")) Then
+    '                                'qc = centered
+    '                                strAlign = "center"
+    '                                'move "cursor" position to next rtf code
+    '                                If (Mid(strRTF, l + 2, 1) = " ") Then l = l + 2
+    '                                l = l + 1
+    '                            ElseIf ((Mid(strRTF, l, 3) = "qr\") Or (Mid(strRTF, l, 3) = "qr ")) Then
+    '                                'qr = right justified
+    '                                strAlign = "right"
+    '                                'move "cursor" position to next rtf code
+    '                                If (Mid(strRTF, l + 2, 1) = " ") Then l = l + 2
+    '                                l = l + 1
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "r"
+    '                            If (Mid(strRTF, l, 7) = "rquote ") Then
+    '                                strTmp = "’"
+    '                                l = l + 6
+    '                                gText = True
+    '                            ElseIf (Mid(strRTF, l, 10) = "rdblquote ") Then
+    '                                'strTmp = "”"
+    '                                strTmp = Chr(34)
+    '                                l = l + 9
+    '                                gText = True
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "t"
+    '                            If (Mid(strRTF, l, 4) = "tab ") Then
+    '                                strTmp = Chr(9) 'Chr$(9)   'tab
+    '                                l = l + 3
+    '                                gText = True
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "u"
+    '                            If ((Mid(strRTF, l, 3) = "ul ") Or (Mid(strRTF, l, 3) = "ul\")) Then
+    '                                strCurLine = strCurLine & "<U>"
+    '                                strEOS = "</U>" & strEOS
+    '                                If (Mid(strRTF, l + 1, 1) = " ") Then l = l + 1 Else l = l + 2
+    '                            Else
+    '                                gSkip = True
+    '                            End If
+    '                        Case "'"
+    '                            strTmp2 = "{" & Mid(strRTF, l + 1, 2) & "}"
+    '                            lTmp = InStr(strCodes, strTmp2)
+    '                            If lTmp = 0 Then
+    '                                strTmp = Chr("&H" & Mid(strTmp2, 2, 2))
+    '                            Else
+    '                                strTmp = Trim(Mid(strCodes, lTmp - 8, 8))
+    '                            End If
+    '                            l = l + 1
+    '                            gText = True
+    '                        Case "~"
+    '                            strTmp = " "
+    '                            gText = True
+    '                        Case "{", "}", "\"
+    '                            gText = True
+    '                        Case vbLf, vbCr, vbCrLf    'always use vbCrLf
+    '                            strCurLine = strCurLine & vbCrLf
+    '                        Case Else
+    '                            gSkip = True
+    '                    End Select
+    '                    If gSkip = True Then
+    '                        'skip everything up until the next space or "\" or "}"
+    '                        While InStr(" \}", Mid(strRTF, l, 1)) = 0
+    '                            l = l + 1
+    '                        End While 'Wend
+    '                        gSkip = False
+    '                        If (Mid(strRTF, l, 1) = "\") Then l = l - 1
+    '                    End If
+    '                    l = l + 1
+    '                Case vbLf, vbCr, vbCrLf
+    '                    l = l + 1
+    '                Case Else
+    '                    gText = True
+    '            End Select
+    '            If gText Then
+    '                If ((Len(strFontColor & strFontFace) > 0) And gSeekingText) Then
+    '                    If Len(strAlign) > 0 Then
+    '                        gAlign = True
+    '                        If strAlign = "center" Then
+    '                            strCurLine = strCurLine & "<TABLE ALIGN=""left"" CELLSPACING=0 CELLPADDING=0 WIDTH=""100%""><TR ALIGN=""center""><TD>"
+    '                        ElseIf strAlign = "right" Then
+    '                            strCurLine = strCurLine & "<TABLE ALIGN=""left"" CELLSPACING=0 CELLPADDING=0 WIDTH=""100%""><TR ALIGN=""right""><TD>"
+    '                        End If
+    '                        strAlign = ""
+    '                    End If
+    '                    If Len(strFontFace) > 0 Then
+    '                        strFontCodes = strFontCodes & " FACE=""" & strFontFace & """"
+    '                    End If
+    '                    If Len(strFontColor) > 0 Then
+    '                        strFontCodes = strFontCodes & " COLOR=""" & strFontColor & """"
+    '                    End If
+    '                    If Len(strCurFontSize) > 0 Then
+    '                        strFontCodes = strFontCodes & " SIZE = """ & lFontSize & """"
+    '                    End If
+    '                    strCurLine = strCurLine & "<FONT" & strFontCodes & ">"
+    '                    strFontCodes = ""
+    '                End If
+    '                strCurLine = strCurLine & strTmp
+    '                l = l + 1
+    '                gSeekingText = False
+    '                gText = False
+    '            End If
+    '        End While 'Wend
+
+    '        lBOS = lEOS + 2
+    '        lEOS = InStr(lEOS + 1, strRTF, vbCrLf & "\par")
+    '        strHTML = strHTML & strEOLL & strBOS & strBOL & strCurLine
+    '        strEOLL = strEOL
+    '        If Len(strEOL) = 0 Then strEOL = "<BR>"
+
+    '        'If lEOS = 0 Then GoTo finally
+    '        If lEOS = 0 Then
+    '            strHTML = strHTML & strEOS
+    '            'clear up any hanging fonts
+    '            If (Len(strFontColor & strFontFace) > 0) Then strHTML = strHTML & "</FONT>"
+    '            RTF2HTML = strHTML
+    '            Exit Function
+    '        End If
+    '        strBOS = ""
+    '        strCurLine = ""
+    '    End While 'Wend
+
+    '    'finally:
+    '    strHTML = strHTML & strEOS
+    '    'clear up any hanging fonts
+    '    If (Len(strFontColor & strFontFace) > 0) Then strHTML = strHTML & "</FONT>"
+    '    RTF2HTML = strHTML
+    'End Function
+
+
+    ''DOES NOT WORK:
+    'Private Function RtfToHtml(ByVal rtf As RichTextBox) As String
+    '    'Private Function RtfToHtml(ByVal RtfString As String) As String
+    '    'Converts rtf code text to html code text.
+    '    'Based on code from:
+    '    'https://www.vbforums.com/showthread.php?594914-Convert-RichTextBox-to-HTML-string
+    '    Dim b, i, u As Boolean
+    '    b = False : i = False : u = False
+    '    Dim fontfamily As String = "Arial"
+    '    Dim fontsize As Integer = 12
+    '    Dim htmlstr As String = String.Format("<html>{0}<body>{0}<div style=""text-align: left;""><span style=""font-family: Arial; font-size: 12pt;"">", vbCrLf)
+
+    '    Dim FirstCharIndex As Integer = rtf.SelectionStart
+    '    Dim LastCharIndex As Integer = rtf.SelectionStart + rtf.SelectionLength - 1
+    '    Dim x As Integer = 0
+    '    'While x < rtf.Text.Length
+    '    For x = FirstCharIndex To LastCharIndex
+    '        rtf.Select(x, 1)
+    '        If rtf.SelectionFont.Bold AndAlso (Not b) Then
+    '            htmlstr &= "<b>"
+    '            b = True
+    '        ElseIf (Not rtf.SelectionFont.Bold) AndAlso b Then
+    '            htmlstr &= "</b>"
+    '            b = False
+    '        End If
+    '        If rtf.SelectionFont.Italic AndAlso (Not i) Then
+    '            htmlstr &= "<i>"
+    '            i = True
+    '        ElseIf (Not rtf.SelectionFont.Italic) AndAlso i Then
+    '            htmlstr &= "</i>"
+    '            i = False
+    '        End If
+    '        If rtf.SelectionFont.Underline AndAlso (Not u) Then
+    '            htmlstr &= "<u>"
+    '            u = True
+    '        ElseIf (Not rtf.SelectionFont.Underline) AndAlso u Then
+    '            htmlstr &= "</u>"
+    '            u = False
+    '        End If
+    '        If fontfamily <> rtf.SelectionFont.FontFamily.Name Then
+    '            htmlstr &= String.Format("</span><span style=""font-family: {0}; font-size: {0}pt;"">", rtf.SelectionFont.FontFamily.Name, fontsize)
+    '            fontfamily = rtf.SelectionFont.FontFamily.Name
+    '        End If
+    '        If fontsize <> rtf.SelectionFont.SizeInPoints Then
+    '            htmlstr &= String.Format("</span><span style=""font-family: {0}; font-size: {0}pt;"">", fontfamily, rtf.SelectionFont.SizeInPoints)
+    '            fontsize = rtf.SelectionFont.SizeInPoints
+    '        End If
+    '        Dim curchar As String = rtf.SelectedText
+    '        Select Case curchar
+    '            Case vbCr, vbLf : curchar = "<br />"
+    '            Case "&" : curchar = "&amp;" : x += "&amp;".Length - 1
+    '            Case "<" : curchar = "&lt;" : x += "&lt;".Length - 1
+    '            Case ">" : curchar = "&gt;" : x += "&gt;".Length - 1
+    '            Case " " : curchar = "&nbsp;" : x += "&nbsp;".Length - 1
+    '        End Select
+    '        rtf.SelectedText = curchar
+    '        x += 1
+    '    Next
+    '    'End While
+    '    Return htmlstr & String.Format("</span>{0}</body>{0}</html>", vbCrLf)
+    'End Function
+
+    'Private Sub btnCbRtfToHtml_Click(sender As Object, e As EventArgs) Handles btnRtfToHtml.Click
+    '    'Convert the clipboard rtf to html.
+    '    If Clipboard.ContainsText(TextDataFormat.Rtf) Then
+    '        Dim rtfString As String = My.Computer.Clipboard.GetText(TextDataFormat.Rtf)
+    '        Clipboard.SetText(sRTF_To_HTML(rtfString), TextDataFormat.Text)
+    '    Else
+    '        Message.AddWarning("The Clipboard does not contain Rich Text Format data." & vbCrLf)
+    '    End If
+    'End Sub
+
+    'Note: This method work but it produces EXTREMELY verbose HTML code:
+    'Public Function sRTF_To_HTML(ByVal sRTF As String) As String
+    '    'Declare a Word Application Object and a Word WdSaveOptions object
+    '    Dim MyWord As Microsoft.Office.Interop.Word.Application
+    '    'To use Microsoft.Office.Interop.Word - Project \ Add Reference \ COM \ Microsoft Office 15.0 Object Library
+    '    Dim oDoNotSaveChanges As Object =
+    '     Microsoft.Office.Interop.Word.WdSaveOptions.wdDoNotSaveChanges
+    '    'Declare two strings to handle the data
+    '    Dim sReturnString As String = ""
+    '    Dim sConvertedString As String = ""
+    '    Try
+    '        'Instantiate the Word application,
+    '        'Set visible To False And create a document
+    '        MyWord = CreateObject("Word.application")
+    '        MyWord.Visible = False
+    '        MyWord.Documents.Add()
+    '        'Create a DataObject to hold the Rich Text
+    '        'and copy it to the clipboard
+    '        Dim doRTF As New System.Windows.Forms.DataObject
+    '        doRTF.SetData("Rich Text Format", sRTF)
+    '        Clipboard.SetDataObject(doRTF)
+    '        'Paste the contents of the clipboard to the empty,
+    '        'hidden Word Document
+    '        MyWord.Windows(1).Selection.Paste()
+    '        'then, select the entire contents of the document
+    '        'and copy back to the clipboard
+    '        MyWord.Windows(1).Selection.WholeStory()
+    '        MyWord.Windows(1).Selection.Copy()
+    '        'Now retrieve the HTML property of the DataObject
+    '        'stored on the clipboard
+    '        sConvertedString =
+    '         Clipboard.GetData(System.Windows.Forms.DataFormats.Html)
+    '        'Remove some leading text that shows up in some instances
+    '        '(like when you insert it into an email in Outlook
+    '        sConvertedString =
+    '         sConvertedString.Substring(sConvertedString.IndexOf("<html"))
+    '        'Also remove multiple Ã‚ characters that somehow end up in there
+    '        sConvertedString = sConvertedString.Replace("Ã‚", "")
+    '        'and you're done.
+    '        sReturnString = sConvertedString
+    '        If Not MyWord Is Nothing Then
+    '            MyWord.Quit(oDoNotSaveChanges)
+    '            MyWord = Nothing
+    '        End If
+    '    Catch ex As Exception
+    '        If Not MyWord Is Nothing Then
+    '            MyWord.Quit(oDoNotSaveChanges)
+    '            MyWord = Nothing
+    '        End If
+    '        MsgBox("Error converting Rich Text to HTML")
+    '    End Try
+    '    Return sReturnString
+    'End Function
+
+
+    'NOTE: NOW only using btnCopyHtmlMarkup.
+    'Private Sub btnCbRtfToHtml_Click(sender As Object, e As EventArgs) Handles btnCbRtfToHtml.Click
+    '    'Convert the rtf in the clipboard to html and place in the clipboard.
+
+    '    If Clipboard.ContainsText(TextDataFormat.Rtf) Then
+    '        Dim rtfString As String = My.Computer.Clipboard.GetText(TextDataFormat.Rtf)
+    '        Dim myText As String = My.Computer.Clipboard.GetText(TextDataFormat.Text)
+    '        'Clipboard.SetText(RTF2HTML(rtfString), TextDataFormat.Text)
+    '        If IsNothing(myText) Then
+    '            Message.AddWarning("Clipboard XML code is blank!" & vbCrLf)
+    '        Else
+    '            Dim myHtml As String = XmlHtmDisplay1.XmlToHtml(myText, False) 'Do not display XML declaration
+    '            'Dim myHtml As String = XmlHtmDisplay1.XmlToHtml(myText, True) 'Display XML declaration
+    '            'If IsNothing(myHtml) Or myHtml = "" Then
+    '            If myHtml = "" Then
+    '                Message.AddWarning("Generated HTML code is blank!" & vbCrLf)
+    '            Else
+    '                Clipboard.SetText(myHtml, TextDataFormat.Text)
+    '            End If
+    '        End If
+    '    Else
+    '        Message.AddWarning("The Clipboard does not contain Rich Text Format data." & vbCrLf)
+    '    End If
+    'End Sub
+
+    Private Sub btnCopyHtmlMarkup_Click(sender As Object, e As EventArgs) Handles btnCopyHtmlMarkup.Click
+        'Copy the selected XML code to the Clipboard as Html markup.
+
+        Dim SelText As String = XmlHtmDisplay1.SelectedText
+        If SelText.Trim = "" Then
+            Message.AddWarning("No XML code has been selected." & vbCrLf)
+        Else
+            Dim SelHtml As String = XmlHtmDisplay1.XmlToHtml(SelText, False)
+            If SelHtml = "" Then
+                Message.AddWarning("Generated HTML code is blank!" & vbCrLf)
+            Else
+                Clipboard.SetText(SelHtml, TextDataFormat.Text)
+            End If
+        End If
+    End Sub
+
+    Private Sub btnPasteXml_Click(sender As Object, e As EventArgs) Handles btnPasteXml.Click
+        'Paste the XML file into the display.
+
+        If Clipboard.ContainsFileDropList Then
+            Dim FileList As System.Collections.Specialized.StringCollection = Clipboard.GetFileDropList()
+            Dim FileName As String
+            If FileList.Count > 0 Then
+                Dim FilePath As String = System.IO.Path.GetFullPath(FileList(0))
+                Dim myFileInfo As New System.IO.FileInfo(FilePath)
+
+                If myFileInfo.Length > XmlHtmDisplay1.Settings.XmlLargeFileSizeLimit Then
+                    Message.AddWarning("The file size is larger than the limit of " & XmlHtmDisplay1.Settings.XmlLargeFileSizeLimit & " bytes" & vbCrLf)
+                    Exit Sub
+                End If
+
+                Dim XDoc As New System.Xml.XmlDocument
+                Try
+                    XDoc.Load(FilePath)
+                    XmlHtmDisplay1.Rtf = XmlHtmDisplay1.XmlToRtf(XDoc, True)
+                    Label26.Text = "Filename: " & System.IO.Path.GetFileName(FilePath)
+                Catch ex As Exception
+                    Message.AddWarning("Error displaying XML file: " & ex.Message & vbCrLf)
+                End Try
+
+                If FileList.Count > 1 Then
+                    Message.Add("There were " & FileList.Count & " files in the Clipboard. First file was pasted: " & FilePath & vbCrLf)
+                Else
+                    Message.Add("File pasted: " & System.IO.Path.GetFullPath(FileList(0)) & vbCrLf)
+                End If
+            Else
+                'FileList is empty
+                Message.Add("File list in the Clipboard is empty." & vbCrLf)
+            End If
+        Else
+            'The Clipboard does not contain a file list.
+            Message.Add("The is no file list in the Clipboard." & vbCrLf)
+        End If
+
+    End Sub
 
 
 #End Region 'Form Methods ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
